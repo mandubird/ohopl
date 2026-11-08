@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ANIMAL ART GALLERY · 오호플 동물 미술관</title>
+<meta name="description" content="동물 도안을 색칠하거나 자유롭게 그려서 미술관에 걸어요. 같은 도안을 다른 사람은 어떻게 칠했는지 구경해요. 가입 없이 무료.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="오호플">
+<meta property="og:title" content="ANIMAL ART GALLERY · 오호플 동물 미술관">
+<meta property="og:description" content="동물 도안을 색칠하고 미술관에 걸어 보세요. 같은 도안, 100가지 색.">
+<meta property="og:url" content="https://ohopl.vercel.app/gallery/">
+<meta property="og:image" content="https://ohopl.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#ffe9c7">
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "z9y4o7hjla");
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 동물 미술관: 따뜻한 종이색 바탕, 나무 액자, 오호플 주황 */
+[hidden]{display:none!important}
+:root{
+  --bg:#fff4e2; --paper:#ffffff; --panel:#ffffff; --panel-2:#fbecd6; --ink:#2b2140; --muted:#7a6a5c; --line:#ead7bd;
+  --accent:#ff7a3d; --accent-ink:#ffffff; --wood:#b7804a; --wood-2:#8a5a30; --heart:#ef4660; --ok:#13a17d;
+  --shadow:0 10px 26px rgba(80,50,20,.16); --scrim:rgba(40,25,10,.45);
+  --display:'Jua','IBM Plex Sans KR',system-ui,sans-serif;
+  --body:'IBM Plex Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1e1914; --panel:#2a231c; --panel-2:#3a3027; --ink:#fbf1e4; --muted:#c9b7a3; --line:#4a3d31; --shadow:0 10px 26px rgba(0,0,0,.45); --scrim:rgba(0,0,0,.6); color-scheme:dark } }
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px}
+body{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px)}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;background:var(--bg);
+  padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.back{text-decoration:none;font-size:13px;color:var(--muted);white-space:nowrap;background:var(--panel);border-radius:999px;padding:7px 12px;box-shadow:0 2px 0 var(--line)}
+.brand{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.brand b{font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.tabs{display:flex;background:var(--panel-2);border-radius:999px;padding:4px;gap:2px}
+.tabs a{text-decoration:none;padding:7px 14px;border-radius:999px;font-weight:700;font-size:14px;white-space:nowrap}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+main{max-width:1180px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+
+/* 그리기 */
+.tpl-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:thin}
+.tpl{flex:none;border:2px solid transparent;background:var(--panel);border-radius:16px;padding:6px 8px 6px;display:grid;justify-items:center;gap:2px;box-shadow:0 3px 0 var(--line);min-width:76px}
+.tpl canvas{width:56px;height:56px;border-radius:10px;background:#fff}
+.tpl span{font-size:12px;font-weight:700}
+.tpl[aria-pressed="true"]{border-color:var(--accent)}
+.studio{display:grid;grid-template-columns:76px minmax(0,1fr) 168px;gap:14px;align-items:start;margin-top:6px}
+.tools{display:grid;gap:6px;background:var(--panel);border-radius:18px;padding:8px;box-shadow:var(--shadow)}
+.tool{border:0;background:var(--panel-2);border-radius:12px;height:52px;display:grid;place-items:center;font-size:12px;font-weight:700;gap:0;line-height:1.1}
+.tool i{font-style:normal;font-size:20px}
+.tool[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tool:disabled{opacity:.4;cursor:default}
+.board{display:grid;gap:10px;min-width:0}
+.board-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.title-in{flex:1;min-width:160px;font:inherit;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--panel);color:var(--ink)}
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;background:var(--panel-2);color:var(--ink);white-space:nowrap}
+.btn.go{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--muted)}
+.frame{position:relative;width:100%;max-width:min(100%, calc(100dvh - 250px));margin:0 auto;aspect-ratio:1/1;border-radius:14px;padding:12px;
+  background:linear-gradient(135deg,var(--wood),var(--wood-2));box-shadow:var(--shadow), inset 0 0 0 3px rgba(255,255,255,.15)}
+.frame canvas{position:absolute;inset:12px;width:calc(100% - 24px);height:calc(100% - 24px);border-radius:6px}
+#cPaint{background:#fff}
+#cOver{touch-action:none;cursor:crosshair}
+.palette{background:var(--panel);border-radius:18px;padding:12px;box-shadow:var(--shadow);display:grid;gap:12px}
+.sw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sw{border:3px solid transparent;border-radius:50%;aspect-ratio:1/1;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.custom{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.custom input{width:44px;height:32px;border:0;padding:0;background:none}
+.size{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.size input{width:100%;accent-color:var(--accent)}
+.size-dot{display:flex;align-items:center;justify-content:center;height:64px;background:var(--panel-2);border-radius:12px}
+.size-dot i{display:block;border-radius:50%;background:var(--cur,#2b2140)}
+.stickers{display:flex;flex-wrap:wrap;gap:6px}
+.stickers button{border:0;background:var(--panel-2);border-radius:10px;font-size:22px;width:42px;height:42px}
+.stickers button[aria-pressed="true"]{background:var(--accent)}
+.note{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+@media (max-width:860px){
+  .studio{grid-template-columns:minmax(0,1fr)}
+  .board{order:1}
+  .tools{order:2;display:flex;overflow-x:auto;padding:6px}
+  .tool{flex:none;width:58px;height:52px}
+  .palette{order:3}
+  .sw-grid{grid-template-columns:repeat(9,1fr)}
+  .frame{max-width:100%}
+  .brand span{display:none}
+}
+@media (max-width:520px){ .brand b{font-size:15px} .back{padding:7px 10px} .back span{display:none} .tabs a{padding:7px 11px} }
+
+/* 전시관 */
+.g-head{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+.g-head h1{margin:0;font-family:var(--display);font-weight:400;font-size:30px;line-height:1.1;text-wrap:balance}
+.g-head p{margin:4px 0 0;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:0;background:var(--panel);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;box-shadow:0 2px 0 var(--line)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.art{border:0;padding:10px 10px 12px;background:linear-gradient(135deg,var(--wood),var(--wood-2));border-radius:12px;text-align:left;box-shadow:var(--shadow);display:grid;gap:8px;transition:transform .15s}
+.art:hover{transform:translateY(-3px) rotate(-.4deg)}
+.art img{width:100%;aspect-ratio:1/1;background:#fff;border-radius:4px;display:block}
+.plate{background:#fff8ec;color:#2b2140;border-radius:6px;padding:7px 9px;display:grid;gap:2px}
+.plate b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plate span{font-size:12px;color:#7a6a5c;display:flex;justify-content:space-between;gap:6px}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 0}
+.more{display:flex;justify-content:center;margin-top:18px}
+@media (max-width:520px){ .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px} .art{padding:7px 7px 9px} }
+
+/* 창 */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40;display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.dlg{width:min(460px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--panel);border-radius:22px;box-shadow:var(--shadow);padding:18px;display:grid;gap:12px}
+.dlg.wide{width:min(720px,100%)}
+.dlg h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px}
+.dlg img{width:100%;border-radius:10px;background:#fff;border:8px solid var(--wood)}
+.dlg label{display:grid;gap:4px;font-size:13px;color:var(--muted);font-weight:700}
+.dlg input,.dlg select{font:inherit;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--panel);color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row .btn.go{flex:1}
+.meta{color:var(--muted);font-size:14px;margin:0}
+.like{border:0;border-radius:999px;padding:10px 16px;font-weight:700;background:var(--panel-2)}
+.like[aria-pressed="true"]{background:var(--heart);color:#fff}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);border-radius:999px;padding:11px 18px;z-index:60;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+footer{max-width:1180px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 28px max(16px,env(safe-area-inset-left,0px));color:var(--muted);font-size:12px;display:flex;gap:6px 14px;flex-wrap:wrap}
+footer a{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){ .art{transition:none} }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="/">← <span>오호플 </span>마을</a>
+  <div class="brand"><b>ANIMAL ART GALLERY</b><span>오호플 동물 미술관</span></div>
+  <div class="spacer"></div>
+  <nav class="tabs" aria-label="미술관 메뉴"><a href="#draw" id="tabDraw">그리기</a><a href="#gallery" id="tabGallery">전시관</a></nav>
+</header>
+
+<main id="viewDraw">
+  <div class="tpl-row" id="tplRow" role="group" aria-label="도안 고르기"></div>
+  <div class="studio">
+    <div class="tools" id="tools" role="toolbar" aria-label="그리기 도구"></div>
+    <section class="board">
+      <div class="board-head">
+        <input class="title-in" id="title" maxlength="30" placeholder="작품 제목 (예: 노을 보는 고양이)" aria-label="작품 제목">
+        <button class="btn" id="saveBtn" type="button">내려받기</button>
+        <button class="btn go" id="pubBtn" type="button">전시하기</button>
+      </div>
+      <div class="frame" id="frame">
+        <canvas id="cPaint" width="800" height="800" aria-label="그림 캔버스"></canvas>
+        <canvas id="cLine" width="800" height="800" aria-hidden="true"></canvas>
+        <canvas id="cOver" width="800" height="800" aria-hidden="true"></canvas>
+      </div>
+    </section>
+    <aside class="palette" aria-label="색과 굵기">
+      <div class="sw-grid" id="swatches" role="group" aria-label="색 고르기"></div>
+      <label class="custom">다른 색 <input type="color" id="customColor" value="#7b5cff" aria-label="다른 색 고르기"></label>
+      <div class="size"><span>굵기 <b id="sizeVal">14</b></span><input type="range" id="size" min="2" max="70" value="14" aria-label="굵기"><div class="size-dot"><i id="sizeDot"></i></div></div>
+      <div id="stickerBox" hidden><div class="stickers" id="stickers" role="group" aria-label="스티커"></div></div>
+      <p class="note" id="toolNote">페인트통으로 도안 칸을 눌러 한 번에 칠해 보세요.</p>
+    </aside>
+  </div>
+</main>
+
+<main id="viewGallery" hidden>
+  <div class="g-head">
+    <div><h1 id="gTitle">동물 미술관</h1><p id="gSub">모두가 그려서 건 그림이에요. 마음에 드는 그림에 하트를 눌러 주세요.</p></div>
+  </div>
+  <div class="chips" id="sortChips" role="group" aria-label="정렬"></div>
+  <div class="chips" id="tplChips" role="group" aria-label="도안별 보기"></div>
+  <div class="wall" id="wall"></div>
+  <div class="more"><button class="btn" id="moreBtn" type="button" hidden>더 보기</button></div>
+</main>
+
+<footer>
+  <span>© 2026 오호플. All rights reserved.</span>
+  <a href="/#terms">이용약관</a><a href="/#privacy">개인정보처리방침</a><a href="/#operator">운영자 정보</a>
+  <span>그림은 이 기기에도 임시 저장돼요.</span>
+</footer>
+
+<div class="scrim" id="pubDlg" hidden>
+  <form class="dlg" id="pubForm" role="dialog" aria-modal="true" aria-labelledby="pubTitle">
+    <h2 id="pubTitle">미술관에 걸기</h2>
+    <img id="pubPreview" alt="걸 그림 미리보기">
+    <label>작품 제목<input id="pTitle" maxlength="30" required></label>
+    <label>작가 닉네임<input id="pNick" maxlength="16" required></label>
+    <label>나는 어떤 동물?<select id="pAnimal"></select></label>
+    <p class="meta">누구나 보는 전시관이에요. 이름, 연락처 같은 개인정보나 다른 사람이 불편할 그림은 걸지 말아 주세요. 신고가 쌓인 그림은 자동으로 내려가요.</p>
+    <div class="row"><button class="btn ghost" type="button" id="pubCancel">취소</button><button class="btn go" type="submit" id="pubGo">걸기</button></div>
+  </form>
+</div>
+
+<div class="scrim" id="artDlg" hidden>
+  <div class="dlg wide" role="dialog" aria-modal="true" aria-labelledby="artTitle">
+    <img id="artImg" alt="">
+    <h2 id="artTitle"></h2>
+    <p class="meta" id="artMeta"></p>
+    <div class="row">
+      <button class="like" id="artLike" type="button" aria-pressed="false">♥ <span id="artLikes">0</span></button>
+      <button class="btn" id="artSame" type="button">이 도안으로 그리기</button>
+      <button class="btn" id="artCopy" type="button">링크 복사</button>
+      <span class="spacer"></span>
+      <button class="btn ghost" id="artReport" type="button">신고</button>
+      <button class="btn" id="artClose" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const store={ get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
+let toastT=0; function toast(m){ const t=$('toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3000); }
+
+/* ---------- 서버 (Supabase, 오호플과 같은 프로젝트) ---------- */
+const SB={url:'https://qvfhqesqjymofstbfkfu.supabase.co', key:'sb_publishable_-VQtmA76QQk70fU5pF5Jvg_uv5yhFJO'};
+const DEVICE=(()=>{ let d=store.get('pg_device',''); if(typeof d!=='string'||d.length<8){ d='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); store.set('pg_device',d); } return d; })();
+async function rpc(fn, body){
+  const r=await fetch(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  if(!r.ok){ let m=''; try{ m=(await r.json()).message||''; }catch(e){} throw new Error(m||('http '+r.status)); }
+  const t=await r.text(); return t?JSON.parse(t):null;
+}
+async function upload(blob, ext){
+  const name='art/'+Date.now().toString(36)+Math.random().toString(36).slice(2,10)+'.'+ext;
+  const r=await fetch(SB.url+'/storage/v1/object/ohopl-art/'+name,{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':blob.type},body:blob});
+  if(!r.ok) throw new Error('upload '+r.status);
+  return name;
+}
+const imgUrl=p=>SB.url+'/storage/v1/object/public/ohopl-art/'+p;
+
+/* ---------- 동물 ---------- */
+const ANIMALS={cat:['고양이','🐱'],dog:['강아지','🐶'],rabbit:['토끼','🐰'],bear:['곰','🐻'],penguin:['펭귄','🐧'],fox:['여우','🦊'],owl:['부엉이','🦉'],squirrel:['다람쥐','🐿️'],hamster:['햄스터','🐹'],frog:['개구리','🐸'],duck:['오리','🦆'],whale:['고래','🐳']};
+const myAnimal=()=>{ const a=store.get('pg_animal','cat'); return ANIMALS[a]?a:'cat'; };
+
+/* ---------- 도안 (오호플이 직접 그린 선, 800×800) ---------- */
+function E(g,x,y,rx,ry){ g.beginPath(); g.ellipse(x,y,rx,ry,0,0,Math.PI*2); g.stroke(); }
+function C(g,x,y,r){ E(g,x,y,r,r); }
+function P(g,d){ g.stroke(new Path2D(d)); }
+const TEMPLATES=[
+  {id:'', name:'빈 종이', draw:()=>{}},
+  {id:'cat', name:'고양이', draw:g=>{
+    P(g,'M222 330 L248 128 L352 252'); P(g,'M578 330 L552 128 L448 252');
+    P(g,'M258 282 L270 188 L320 246'); P(g,'M542 282 L530 188 L480 246');
+    E(g,400,440,232,202);
+    E(g,318,418,32,44); E(g,482,418,32,44); C(g,326,404,10); C(g,490,404,10);
+    P(g,'M384 488 L416 488 L400 508 Z'); P(g,'M400 508 Q386 546 354 534'); P(g,'M400 508 Q414 546 446 534');
+    P(g,'M300 496 L176 480'); P(g,'M300 514 L182 532'); P(g,'M500 496 L624 480'); P(g,'M500 514 L618 532');
+    P(g,'M400 662 L340 628 L340 700 Z'); P(g,'M400 662 L460 628 L460 700 Z'); C(g,400,662,16);
+    P(g,'M200 760 Q400 700 600 760'); }},
+  {id:'bear', name:'곰', draw:g=>{
+    C(g,240,232,72); C(g,560,232,72); C(g,240,232,36); C(g,560,232,36);
+    E(g,400,432,242,216);
+    E(g,400,506,98,72); E(g,400,474,30,20); P(g,'M400 494 L400 520 Q380 546 358 530'); P(g,'M400 520 Q420 546 442 530');
+    C(g,314,398,22); C(g,486,398,22); C(g,268,486,28); C(g,532,486,28);
+    P(g,'M160 760 Q400 690 640 760'); C(g,640,170,40); P(g,'M640 210 L640 300'); }},
+  {id:'rabbit', name:'토끼', draw:g=>{
+    E(g,318,206,56,152); E(g,482,206,56,152); E(g,318,218,26,110); E(g,482,218,26,110);
+    E(g,400,474,218,192);
+    C(g,326,452,24); C(g,474,452,24); E(g,400,512,18,12);
+    P(g,'M400 524 Q386 556 360 546'); P(g,'M400 524 Q414 556 440 546'); P(g,'M388 530 L388 562 L412 562 L412 530');
+    C(g,288,522,26); C(g,512,522,26);
+    P(g,'M120 760 Q260 720 400 740 Q540 760 680 720'); C(g,140,140,30); C(g,180,160,18); }},
+  {id:'penguin', name:'펭귄', draw:g=>{
+    E(g,400,440,192,290); E(g,400,502,126,214);
+    C(g,350,318,20); C(g,450,318,20); P(g,'M370 362 L430 362 L400 404 Z');
+    P(g,'M214 420 Q148 520 230 604'); P(g,'M586 420 Q652 520 570 604');
+    E(g,340,736,56,24); E(g,460,736,56,24);
+    P(g,'M250 400 Q400 440 550 400'); P(g,'M262 432 Q400 474 538 432'); P(g,'M520 430 L560 520 L600 500 L560 420');
+    P(g,'M90 770 L710 770'); C(g,120,140,26); C(g,690,190,18); }},
+  {id:'fish', name:'물고기', draw:g=>{
+    E(g,370,400,232,150); P(g,'M592 400 L722 296 L702 400 L722 504 Z');
+    C(g,250,370,28); C(g,250,370,10); P(g,'M148 420 Q170 432 164 448');
+    P(g,'M330 256 Q400 168 472 266'); P(g,'M350 546 Q392 612 442 542'); P(g,'M300 318 Q342 400 300 482');
+    for(const y of [350,420]) for(let x=380;x<=540;x+=54){ g.beginPath(); g.arc(x,y,26,Math.PI*0.6,Math.PI*1.4); g.stroke(); }
+    C(g,112,250,22); C(g,82,180,14); C(g,130,118,10);
+    P(g,'M180 790 Q150 712 190 650 Q230 590 200 530'); P(g,'M620 790 Q650 720 610 660 Q580 620 610 580'); P(g,'M40 790 L760 790'); }},
+  {id:'owl', name:'부엉이', draw:g=>{
+    E(g,400,450,212,262); P(g,'M236 282 L250 160 L322 232'); P(g,'M564 282 L550 160 L478 232');
+    C(g,320,332,80); C(g,480,332,80); C(g,320,332,34); C(g,480,332,34);
+    P(g,'M380 402 L420 402 L400 446 Z'); E(g,400,574,122,120);
+    for(const [x,y] of [[360,540],[440,540],[400,590],[350,630],[450,630]]) P(g,`M${x-16} ${y} L${x} ${y+14} L${x+16} ${y}`);
+    P(g,'M196 420 Q170 560 270 664'); P(g,'M604 420 Q630 560 530 664');
+    P(g,'M60 720 L740 720 L740 752 L60 752 Z'); P(g,'M340 704 L340 720 M360 704 L360 720 M440 704 L440 720 M460 704 L460 720');
+    C(g,660,120,46); }}
+];
+function drawTemplate(ctx, id, scale){
+  const T=TEMPLATES.find(t=>t.id===id)||TEMPLATES[0];
+  ctx.save(); ctx.scale(scale,scale); ctx.strokeStyle='#2b2d42'; ctx.lineWidth=9; ctx.lineJoin='round'; ctx.lineCap='round'; T.draw(ctx); ctx.restore();
+}
+
+/* ---------- 캔버스 ---------- */
+const W=800;
+const cP=$('cPaint'), cL=$('cLine'), cO=$('cOver');
+const PX=cP.getContext('2d',{willReadFrequently:true}), LX=cL.getContext('2d'), OX=cO.getContext('2d');
+const COLORS=['#2b2140','#ffffff','#9aa0b4','#7a4a2c','#e8433a','#ff7a3d','#ffc83d','#fff176','#8bd450','#13a17d','#3fdfd6','#3fb0ff','#2f6bff','#7b5cff','#ef4680','#ffb7d0','#f4c9a4','#c9955a'];
+const TOOLS=[['brush','붓','🖌️'],['eraser','지우개','🧽'],['fill','페인트통','🪣'],['line','직선','📏'],['rect','네모','⬜'],['circle','동그라미','⚪'],['sticker','스티커','⭐'],['undo','되돌리기','↶'],['redo','다시','↷'],['clear','새 종이','🗑️']];
+const STICKERS=['🐾','⭐','❤️','🌸','🍀','🎈','☀️','🌙','☁️','🦋','🍎','🎵'];
+const state={tool:'fill', color:'#ff7a3d', size:14, tpl:'', sticker:'🐾', dirty:false};
+const undoS=[], redoS=[]; const MAXH=15;
+function snapshot(){ return PX.getImageData(0,0,W,W); }
+function pushHistory(){ undoS.push(snapshot()); if(undoS.length>MAXH) undoS.shift(); redoS.length=0; syncTools(); }
+function undo(){ if(!undoS.length) return; redoS.push(snapshot()); PX.putImageData(undoS.pop(),0,0); syncTools(); saveDraft(); }
+function redo(){ if(!redoS.length) return; undoS.push(snapshot()); PX.putImageData(redoS.pop(),0,0); syncTools(); saveDraft(); }
+function blank(){ PX.save(); PX.globalCompositeOperation='source-over'; PX.fillStyle='#ffffff'; PX.fillRect(0,0,W,W); PX.restore(); }
+function setTemplate(id){ state.tpl=id; LX.clearRect(0,0,W,W); drawTemplate(LX,id,1); syncTpl(); }
+
+function pos(e){ const r=cO.getBoundingClientRect(); return [(e.clientX-r.left)*W/r.width, (e.clientY-r.top)*W/r.height]; }
+function hexRgb(h){ const n=parseInt(h.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+
+// 페인트통: 칠한 그림과 도안 선을 합쳐서 경계를 찾고, 칠은 아래 층에만 함
+function floodFill(x0,y0,hex){
+  x0=Math.max(0,Math.min(W-1,x0|0)); y0=Math.max(0,Math.min(W-1,y0|0));
+  const tmp=document.createElement('canvas'); tmp.width=tmp.height=W; const tg=tmp.getContext('2d',{willReadFrequently:true});
+  tg.drawImage(cP,0,0); tg.drawImage(cL,0,0); const d=tg.getImageData(0,0,W,W).data;
+  const img=PX.getImageData(0,0,W,W), p=img.data;
+  const i0=(y0*W+x0)*4, tr=d[i0], tgc=d[i0+1], tb=d[i0+2];
+  const [fr,fg,fb]=hexRgb(hex);
+  if(Math.abs(tr-fr)+Math.abs(tgc-fg)+Math.abs(tb-fb)<8) return false;
+  const tol=60, mask=new Uint8Array(W*W);
+  const ok=i=>{ const k=i*4; return !mask[i] && Math.abs(d[k]-tr)+Math.abs(d[k+1]-tgc)+Math.abs(d[k+2]-tb)<=tol; };
+  const stack=[x0,y0];
+  while(stack.length){ const y=stack.pop(), x0s=stack.pop(); let x=x0s; let i=y*W+x;
+    while(x>=0 && ok(i)){ x--; i--; } x++; i++;
+    let up=false, dn=false;
+    while(x<W && ok(i)){ mask[i]=1;
+      if(y>0){ const u=i-W; if(ok(u)){ if(!up){ stack.push(x,y-1); up=true; } } else up=false; }
+      if(y<W-1){ const v=i+W; if(ok(v)){ if(!dn){ stack.push(x,y+1); dn=true; } } else dn=false; }
+      x++; i++; } }
+  // 경계의 흐린 테두리까지 1칸 넓혀서 하얀 틈이 안 남게
+  const grow=new Uint8Array(mask);
+  for(let y=1;y<W-1;y++) for(let x=1;x<W-1;x++){ const i=y*W+x; if(mask[i]) continue; if(mask[i-1]||mask[i+1]||mask[i-W]||mask[i+W]) grow[i]=1; }
+  for(let i=0;i<W*W;i++) if(grow[i]){ const k=i*4; p[k]=fr; p[k+1]=fg; p[k+2]=fb; p[k+3]=255; }
+  PX.putImageData(img,0,0); return true;
+}
+function shapePath(g,t,a,b){
+  g.beginPath();
+  if(t==='line'){ g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); }
+  else if(t==='rect'){ g.rect(Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1])); }
+  else { g.ellipse((a[0]+b[0])/2,(a[1]+b[1])/2,Math.abs(b[0]-a[0])/2||1,Math.abs(b[1]-a[1])/2||1,0,0,Math.PI*2); }
+  g.stroke();
+}
+function stroke(g,color,size){ g.strokeStyle=color; g.lineWidth=size; g.lineCap='round'; g.lineJoin='round'; }
+
+let drawing=null;
+cO.addEventListener('pointerdown', e=>{
+  if(e.button!==undefined && e.button>0) return;
+  e.preventDefault(); cO.setPointerCapture(e.pointerId);
+  const p=pos(e), t=state.tool;
+  if(t==='fill'){ pushHistory(); if(!floodFill(p[0],p[1],state.color)) undoS.pop(); syncTools(); markDirty(); return; }
+  if(t==='sticker'){ pushHistory(); const s=state.size*3+28; PX.save(); PX.font=s+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; PX.textAlign='center'; PX.textBaseline='middle'; PX.fillText(state.sticker,p[0],p[1]); PX.restore(); markDirty(); return; }
+  pushHistory();
+  drawing={id:e.pointerId, t, start:p, last:p, mid:p};
+  if(t==='brush'||t==='eraser'){ stroke(PX, t==='eraser'?'#ffffff':state.color, state.size); PX.beginPath(); PX.moveTo(p[0],p[1]); PX.lineTo(p[0]+0.01,p[1]); PX.stroke(); }
+});
+cO.addEventListener('pointermove', e=>{
+  if(!drawing || e.pointerId!==drawing.id) return;
+  const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+  if(drawing.t==='brush'||drawing.t==='eraser'){
+    stroke(PX, drawing.t==='eraser'?'#ffffff':state.color, state.size);
+    for(const ev of evs){ const p=pos(ev); const mid=[(drawing.last[0]+p[0])/2,(drawing.last[1]+p[1])/2];
+      PX.beginPath(); PX.moveTo(drawing.mid[0],drawing.mid[1]); PX.quadraticCurveTo(drawing.last[0],drawing.last[1],mid[0],mid[1]); PX.stroke();
+      drawing.last=p; drawing.mid=mid; }
+  } else { const p=pos(e); drawing.last=p; OX.clearRect(0,0,W,W); stroke(OX,state.color,state.size); shapePath(OX,drawing.t,drawing.start,p); }
+});
+function endDraw(e){
+  if(!drawing || (e && e.pointerId!==drawing.id)) return;
+  if(drawing.t==='brush'||drawing.t==='eraser'){ stroke(PX, drawing.t==='eraser'?'#ffffff':state.color, state.size); PX.beginPath(); PX.moveTo(drawing.mid[0],drawing.mid[1]); PX.lineTo(drawing.last[0],drawing.last[1]); PX.stroke(); }
+  else { OX.clearRect(0,0,W,W); stroke(PX,state.color,state.size); shapePath(PX,drawing.t,drawing.start,drawing.last); }
+  drawing=null; markDirty();
+}
+cO.addEventListener('pointerup', endDraw); cO.addEventListener('pointercancel', endDraw);
+
+let draftT=0;
+function markDirty(){ state.dirty=true; clearTimeout(draftT); draftT=setTimeout(saveDraft,700); syncTools(); }
+function saveDraft(){ try{ localStorage.setItem('aag_draft', JSON.stringify({tpl:state.tpl, title:$('title').value, img:cP.toDataURL('image/webp',0.82)})); }catch(e){} }
+function loadDraft(){ const d=store.get('aag_draft',null); if(!d||!d.img) return false;
+  const im=new Image(); im.onload=()=>{ PX.drawImage(im,0,0,W,W); }; im.src=d.img; setTemplate(d.tpl||''); $('title').value=d.title||''; state.dirty=true; return true; }
+
+/* ---------- 도구 UI ---------- */
+let clearArm=0, tplArm=null;
+function buildTools(){
+  const box=$('tools'); box.innerHTML='';
+  TOOLS.forEach(([id,label,icon])=>{ const b=document.createElement('button'); b.type='button'; b.className='tool'; b.dataset.id=id; b.title=label;
+    b.innerHTML=`<i aria-hidden="true">${icon}</i>${label}`; b.addEventListener('click',()=>onTool(id)); box.appendChild(b); });
+  syncTools();
+}
+function onTool(id){
+  if(id==='undo') return undo(); if(id==='redo') return redo();
+  if(id==='clear'){ if(Date.now()-clearArm>2500){ clearArm=Date.now(); toast('한 번 더 누르면 새 종이가 돼요'); return; }
+    clearArm=0; pushHistory(); blank(); markDirty(); toast('새 종이예요. 되돌리기로 돌아갈 수 있어요'); return; }
+  state.tool=id; syncTools();
+}
+const NOTES={brush:'붓으로 자유롭게 그려요. 굵기는 오른쪽에서 바꿔요.', eraser:'지우개는 하얗게 지워요. 도안 선은 지워지지 않아요.', fill:'페인트통으로 도안 칸을 눌러 한 번에 칠해 보세요.', line:'끌어서 곧은 선을 그어요.', rect:'끌어서 네모를 그려요.', circle:'끌어서 동그라미를 그려요.', sticker:'스티커를 고르고 그림 위를 눌러 찍어요. 굵기로 크기를 바꿔요.'};
+function syncTools(){
+  document.querySelectorAll('.tool').forEach(b=>{ const id=b.dataset.id;
+    if(['undo','redo','clear'].includes(id)) b.removeAttribute('aria-pressed'); else b.setAttribute('aria-pressed', String(state.tool===id));
+    if(id==='undo') b.disabled=!undoS.length; if(id==='redo') b.disabled=!redoS.length; });
+  $('stickerBox').hidden = state.tool!=='sticker'; $('toolNote').textContent=NOTES[state.tool]||'';
+  cO.style.cursor = state.tool==='fill' ? 'cell' : 'crosshair';
+}
+function buildPalette(){
+  const g=$('swatches'); g.innerHTML='';
+  COLORS.forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='sw'; b.style.setProperty('--c',c); b.setAttribute('aria-label','색 '+c); b.dataset.c=c;
+    b.addEventListener('click',()=>{ setColor(c); if(state.tool==='eraser'||state.tool==='sticker') { state.tool= state.tool==='sticker'?'sticker':'brush'; syncTools(); } }); g.appendChild(b); });
+  $('customColor').addEventListener('input', e=>setColor(e.target.value));
+  const st=$('stickers'); STICKERS.forEach(s=>{ const b=document.createElement('button'); b.type='button'; b.textContent=s; b.setAttribute('aria-label','스티커 '+s);
+    b.addEventListener('click',()=>{ state.sticker=s; syncStickers(); }); st.appendChild(b); }); syncStickers();
+  $('size').addEventListener('input', e=>{ state.size=+e.target.value; syncSize(); });
+  setColor(state.color); syncSize();
+}
+function setColor(c){ state.color=c; document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.c===c))); syncSize(); }
+function syncSize(){ $('sizeVal').textContent=state.size; const d=$('sizeDot'); const px=Math.max(3,Math.round(state.size*0.7)); d.style.width=d.style.height=px+'px'; d.style.setProperty('--cur',state.color); d.style.background=state.color; }
+function syncStickers(){ document.querySelectorAll('#stickers button').forEach(b=>b.setAttribute('aria-pressed', String(b.textContent===state.sticker))); }
+function buildTemplates(){
+  const row=$('tplRow'); row.innerHTML='';
+  TEMPLATES.forEach(T=>{ const b=document.createElement('button'); b.type='button'; b.className='tpl'; b.dataset.id=T.id;
+    const c=document.createElement('canvas'); c.width=c.height=112; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,112,112); drawTemplate(g,T.id,112/800);
+    if(!T.id){ g.font='44px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('✏️',56,58); }
+    const s=document.createElement('span'); s.textContent=T.name; b.append(c,s);
+    b.addEventListener('click',()=>chooseTemplate(T.id)); row.appendChild(b); });
+  syncTpl();
+}
+function chooseTemplate(id){
+  if(id===state.tpl && !state.dirty) return;
+  if(state.dirty && tplArm!==id){ tplArm=id; toast('지금 그림이 지워져요. 한 번 더 누르면 바뀌어요'); setTimeout(()=>{ if(tplArm===id) tplArm=null; },3000); return; }
+  tplArm=null; undoS.length=0; redoS.length=0; blank(); setTemplate(id); state.dirty=false; state.tool= id ? 'fill' : 'brush'; syncTools(); saveDraft();
+}
+function syncTpl(){ document.querySelectorAll('.tpl').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.id===state.tpl))); }
+
+/* ---------- 내보내기 ---------- */
+function composite(size){ const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,size,size); g.drawImage(cP,0,0,size,size); g.drawImage(cL,0,0,size,size); return c; }
+const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+$('saveBtn').addEventListener('click', async ()=>{
+  const b=await toBlob(composite(W),'image/png'); if(!b) return;
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=( $('title').value.trim() || 'animal-art' )+'.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast('그림을 내려받았어요');
+});
+$('title').addEventListener('input', ()=>{ clearTimeout(draftT); draftT=setTimeout(saveDraft,700); });
+
+/* ---------- 전시하기 ---------- */
+function openPublish(){
+  if(!state.dirty){ toast('먼저 그림을 그려 주세요'); return; }
+  $('pubPreview').src=composite(W).toDataURL('image/png');
+  $('pTitle').value=$('title').value.trim() || (state.tpl ? (TEMPLATES.find(t=>t.id===state.tpl).name+' 색칠') : '');
+  $('pNick').value=store.get('pg_nick','') || (ANIMALS[myAnimal()][0]+' 친구');
+  const sel=$('pAnimal'); sel.innerHTML=Object.entries(ANIMALS).map(([k,[n,e]])=>`<option value="${k}">${e} ${n}</option>`).join(''); sel.value=store.get('aag_animal',myAnimal());
+  $('pubDlg').hidden=false; $('pTitle').focus();
+}
+$('pubBtn').addEventListener('click', openPublish);
+$('pubCancel').addEventListener('click', ()=>{ $('pubDlg').hidden=true; });
+$('pubDlg').addEventListener('click', e=>{ if(e.target===$('pubDlg')) $('pubDlg').hidden=true; });
+const ERR={no_links:'제목과 닉네임에는 주소를 넣을 수 없어요', too_fast:'1분 뒤에 다시 걸어 주세요', too_many:'오늘은 더 걸 수 없어요. 내일 또 와 주세요', bad_title:'제목을 적어 주세요', bad_nickname:'닉네임을 적어 주세요'};
+$('pubForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const title=$('pTitle').value.trim(), nick=$('pNick').value.trim(), animal=$('pAnimal').value;
+  if(!title||!nick){ toast('제목과 닉네임을 적어 주세요'); return; }
+  const go=$('pubGo'); go.disabled=true; go.textContent='거는 중…';
+  try{
+    let c=composite(W), b=await toBlob(c,'image/webp',0.86), ext='webp';
+    if(!b || b.type!=='image/webp'){ b=await toBlob(c,'image/png'); ext='png'; }
+    if(b.size>950000){ c=composite(560); b=await toBlob(c, ext==='webp'?'image/webp':'image/png', 0.82); }
+    const path=await upload(b, ext);
+    const id=await rpc('ohopl_art_publish',{p_title:title,p_nickname:nick,p_animal:animal,p_template:state.tpl,p_path:path,p_device:DEVICE});
+    store.set('pg_nick',nick); store.set('aag_animal',animal); $('title').value=title;
+    const mine=store.get('aag_mine',[]); mine.unshift(id); store.set('aag_mine',mine.slice(0,200));
+    $('pubDlg').hidden=true; toast('미술관에 걸었어요!'); gal.sort='new'; gal.tpl=null; gal.mine=false;
+    location.hash='art-'+id;
+  }catch(err){ const m=(err&&err.message)||''; const k=Object.keys(ERR).find(k=>m.includes(k)); toast(k?ERR[k]:'지금은 걸 수 없어요. 잠시 뒤 다시 해 주세요'); }
+  go.disabled=false; go.textContent='걸기';
+});
+
+/* ---------- 전시관 ---------- */
+const gal={sort:'new', tpl:null, mine:false, offset:0, items:[], loaded:false};
+const liked=new Set(store.get('aag_liked',[])); const reportedArt=new Set(store.get('aag_reported',[]));
+function chip(label, pressed, fn){ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=label; b.setAttribute('aria-pressed',String(pressed)); b.addEventListener('click',fn); return b; }
+function buildGalleryChips(){
+  const s=$('sortChips'); s.innerHTML='';
+  s.append(chip('최신', gal.sort==='new'&&!gal.mine, ()=>{ gal.sort='new'; gal.mine=false; reloadWall(); }),
+           chip('인기', gal.sort==='top'&&!gal.mine, ()=>{ gal.sort='top'; gal.mine=false; reloadWall(); }),
+           chip('내 그림', gal.mine, ()=>{ gal.mine=true; reloadWall(); }));
+  const t=$('tplChips'); t.innerHTML='';
+  t.append(chip('모든 그림', gal.tpl===null, ()=>{ gal.tpl=null; reloadWall(); }));
+  TEMPLATES.filter(T=>T.id).forEach(T=>t.append(chip(T.name+' 도안', gal.tpl===T.id, ()=>{ gal.tpl=T.id; reloadWall(); })));
+  t.append(chip('자유 그림', gal.tpl==='', ()=>{ gal.tpl=''; reloadWall(); }));
+  const name=gal.tpl ? TEMPLATES.find(x=>x.id===gal.tpl).name : null;
+  $('gTitle').textContent = gal.mine ? '내가 건 그림' : name ? '같은 '+name+', 다른 색' : gal.tpl==='' ? '자유롭게 그린 그림' : '동물 미술관';
+  $('gSub').textContent = name ? '모두 같은 도안에서 시작했어요. 누가 어떤 색을 골랐는지 구경해 보세요.' : '모두가 그려서 건 그림이에요. 마음에 드는 그림에 하트를 눌러 주세요.';
+}
+async function loadWall(){
+  const mineIds=store.get('aag_mine',[]);
+  if(gal.mine && !mineIds.length){ renderWall([],true); return; }
+  try{
+    const rows=await rpc('ohopl_art_list',{p_sort:gal.sort, p_template: gal.tpl===null?null:gal.tpl, p_ids: gal.mine?mineIds:null, p_limit:36, p_offset:gal.offset});
+    renderWall(rows, false);
+  }catch(e){ $('wall').innerHTML='<p class="empty">전시관을 불러오지 못했어요. 잠시 뒤 다시 열어 보세요.</p>'; $('moreBtn').hidden=true; }
+}
+function reloadWall(){ gal.offset=0; gal.items=[]; $('wall').innerHTML=''; buildGalleryChips(); loadWall(); }
+function renderWall(rows, emptyMine){
+  const w=$('wall');
+  if(gal.offset===0) w.innerHTML='';
+  gal.items=gal.items.concat(rows);
+  rows.forEach(a=>{ const b=document.createElement('button'); b.type='button'; b.className='art';
+    const im=document.createElement('img'); im.loading='lazy'; im.alt=a.title; im.src=imgUrl(a.image_path);
+    const pl=document.createElement('span'); pl.className='plate';
+    const t=document.createElement('b'); t.textContent=a.title;
+    const m=document.createElement('span'); const who=document.createElement('span'); who.textContent=(ANIMALS[a.animal]||ANIMALS.cat)[1]+' '+a.nickname; const lk=document.createElement('span'); lk.textContent='♥ '+a.likes; m.append(who,lk);
+    pl.append(t,m); b.append(im,pl); b.addEventListener('click',()=>{ location.hash='art-'+a.id; }); w.appendChild(b); });
+  if(!gal.items.length){ w.innerHTML = `<p class="empty">${emptyMine||gal.mine ? '아직 건 그림이 없어요. 그리기에서 그려서 걸어 보세요.' : '아직 걸린 그림이 없어요. 첫 번째 작가가 되어 보세요!'}</p>`; }
+  $('moreBtn').hidden = rows.length<36;
+}
+$('moreBtn').addEventListener('click',()=>{ gal.offset+=36; loadWall(); });
+
+let cur=null;
+async function openArt(id){
+  let a=gal.items.find(x=>x.id===id);
+  if(!a){ try{ const r=await rpc('ohopl_art_list',{p_ids:[id],p_limit:1}); a=r&&r[0]; }catch(e){} }
+  if(!a){ toast('그림을 찾을 수 없어요. 내려갔을 수도 있어요'); location.hash='gallery'; return; }
+  cur=a;
+  $('artImg').src=imgUrl(a.image_path); $('artImg').alt=a.title; $('artTitle').textContent=a.title;
+  const an=ANIMALS[a.animal]||ANIMALS.cat;
+  const tplName=a.template ? TEMPLATES.find(t=>t.id===a.template)?.name : null;
+  $('artMeta').textContent=`${an[1]} ${an[0]} 작가 ${a.nickname} · ${new Date(a.created_at).toLocaleDateString('ko-KR')}${tplName?' · '+tplName+' 도안':' · 자유 그림'}`;
+  $('artLikes').textContent=a.likes; $('artLike').setAttribute('aria-pressed',String(liked.has(a.id)));
+  $('artSame').hidden=!a.template; $('artReport').disabled=reportedArt.has(a.id); $('artReport').textContent=reportedArt.has(a.id)?'신고함':'신고';
+  $('artDlg').hidden=false; $('artClose').focus({preventScroll:true});
+}
+function closeArt(){ $('artDlg').hidden=true; cur=null; if(location.hash.startsWith('#art-')) history.replaceState(null,'','#gallery'); }
+$('artClose').addEventListener('click', closeArt);
+$('artDlg').addEventListener('click', e=>{ if(e.target===$('artDlg')) closeArt(); });
+$('artLike').addEventListener('click', async ()=>{
+  if(!cur || liked.has(cur.id)) { if(cur) toast('이미 하트를 눌렀어요'); return; }
+  liked.add(cur.id); store.set('aag_liked',[...liked]); $('artLike').setAttribute('aria-pressed','true'); $('artLikes').textContent=cur.likes+1;
+  try{ const n=await rpc('ohopl_art_like',{p_id:cur.id,p_device:DEVICE}); cur.likes=n; $('artLikes').textContent=n; refreshCard(cur); }catch(e){}
+});
+function refreshCard(a){ const i=gal.items.indexOf(a); const card=$('wall').children[i]; if(card){ const lk=card.querySelector('.plate span span:last-child'); if(lk) lk.textContent='♥ '+a.likes; } }
+$('artReport').addEventListener('click', async ()=>{
+  if(!cur || reportedArt.has(cur.id)) return;
+  reportedArt.add(cur.id); store.set('aag_reported',[...reportedArt]); $('artReport').disabled=true; $('artReport').textContent='신고함';
+  try{ await rpc('ohopl_art_report',{p_id:cur.id,p_device:DEVICE}); }catch(e){}
+  toast('신고했어요. 여러 명이 신고하면 자동으로 내려가요');
+});
+let sameArm=0;
+$('artSame').addEventListener('click', ()=>{ if(!cur||!cur.template) return;
+  if(state.dirty && Date.now()-sameArm>3000){ sameArm=Date.now(); $('artSame').textContent='한 번 더: 그리던 그림이 지워져요'; setTimeout(()=>{ $('artSame').textContent='이 도안으로 그리기'; },3000); return; }
+  sameArm=0; const id=cur.template; closeArt(); location.hash='draw'; state.dirty=false; chooseTemplate(id); $('title').value=''; });
+$('artCopy').addEventListener('click', async ()=>{
+  const url=location.origin+location.pathname+'#art-'+(cur&&cur.id);
+  try{ await navigator.clipboard.writeText(url); toast('링크를 복사했어요'); }catch(e){ toast(url); }
+});
+
+/* ---------- 화면 전환 ---------- */
+function route(){
+  const h=location.hash.slice(1);
+  const art=h.match(/^art-(\d+)$/);
+  const isGal = h==='gallery' || !!art;
+  $('viewDraw').hidden=isGal; $('viewGallery').hidden=!isGal;
+  $('tabDraw').toggleAttribute('aria-current', !isGal); $('tabGallery').toggleAttribute('aria-current', isGal);
+  if(!isGal) { $('tabDraw').setAttribute('aria-current','page'); $('tabGallery').removeAttribute('aria-current'); }
+  else { $('tabGallery').setAttribute('aria-current','page'); $('tabDraw').removeAttribute('aria-current'); }
+  if(isGal && !gal.loaded){ gal.loaded=true; reloadWall(); }
+  if(art) openArt(+art[1]); else if(!$('artDlg').hidden) { $('artDlg').hidden=true; cur=null; }
+}
+addEventListener('hashchange', route);
+addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ if(!$('artDlg').hidden) closeArt(); else if(!$('pubDlg').hidden) $('pubDlg').hidden=true; return; }
+  const tag=e.target&&e.target.tagName; if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); e.shiftKey?redo():undo(); }
+});
+
+/* ---------- 시작 ---------- */
+blank(); buildTools(); buildPalette(); buildTemplates();
+if(!loadDraft()){ setTemplate('cat'); state.tool='fill'; }
+syncTools(); route();
+})();
+</script>
+</body>
+</html>

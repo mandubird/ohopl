@@ -106,10 +106,13 @@ button{cursor:pointer}
 .hint kbd{font-family:var(--body);font-size:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink)}
 
 /* 가게 앞 안내 */
-.near{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));
-  display:flex;align-items:center;gap:10px;background:var(--panel);border:0;border-radius:999px;padding:10px 10px 10px 18px;box-shadow:var(--shadow);z-index:6;font-size:15px;max-width:calc(100% - 32px)}
-.near strong{font-family:var(--display);font-weight:400;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.near .go{background:var(--accent);color:#fff;border-radius:999px;padding:7px 14px;font-weight:700;white-space:nowrap}
+.near{position:fixed;left:50%;top:24%;transform:translateX(-50%);
+  display:grid;justify-items:center;gap:8px;background:var(--panel);border:0;border-radius:24px;padding:16px 22px 18px;box-shadow:var(--shadow);z-index:6;font-size:15px;max-width:calc(100% - 32px);min-width:min(300px,calc(100% - 32px))}
+.near small{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+.near strong{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.15;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.near .go{background:var(--accent);color:#fff;border-radius:999px;padding:12px 30px;font-weight:700;font-size:18px;white-space:nowrap}
+.near em{font-style:normal;font-size:12px;color:var(--muted)}
+@media (max-width:640px){ .near{top:20%} .near strong{font-size:22px} }
 
 /* 작품 카드 */
 .card{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));
@@ -258,7 +261,8 @@ button{cursor:pointer}
 .place-item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:var(--panel-2);border-radius:14px;padding:12px 14px}
 .place-item b{font-size:16px}
 .place-item p{grid-column:1;font-size:13px;color:var(--muted)}
-.place-item .btn.go{grid-row:1 / span 2;grid-column:2;flex:none;min-width:0;font-size:14px;padding:10px 14px}
+.pi-btns{grid-row:1 / span 2;grid-column:2;display:grid;gap:6px}
+.pi-btns .btn{flex:none;min-width:0;font-size:14px;padding:9px 12px;text-align:center}
 .copy{margin:0;font-size:12px;color:var(--muted);text-align:center}
 .guide{position:fixed;inset:0;display:grid;place-items:center;background:var(--scrim);z-index:50;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .guide-box{width:min(420px,100%);background:var(--panel);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
@@ -312,7 +316,7 @@ button{cursor:pointer}
 
 <div class="hint" id="hint"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기(한/영 상관없음) · <kbd>스페이스</kbd> 점프 · 화면 끌어서 둘러보기 · 가게나 주민 앞에서 <kbd>E</kbd></div>
 
-<button class="near" id="near" type="button" hidden><strong id="nearName"></strong><span class="go" id="nearGo">들어가기</span></button>
+<button class="near" id="near" type="button" hidden><small id="nearKind"></small><strong id="nearName"></strong><span class="go" id="nearGo">들어가기</span><em id="nearHint"></em></button>
 
 <section class="card" id="card" hidden role="dialog" aria-labelledby="cardTitle">
   <div class="card-band" id="cardBand"><div class="badges" id="cardBadges"></div><button class="close-x" id="cardClose" type="button" aria-label="닫기">×</button></div>
@@ -482,23 +486,27 @@ const FAITH_WORKS = [
   {id:'sansa', name:'산사', type:'EXPLORE', zone:'성소 언덕', place:'temple', url:'https://sansatemple.com/', desc:'말없이 같이 앉아 있는 온라인 절. 합장하고, 절하고, 목탁을 치며 잠깐 쉬어 가요.', share:'같이 앉아 있는 사람 수 캡처', score:2}
 ];
 const PLACES = {
-  church:{id:'church', name:'언덕 위 교회', ko:'교회', color:'#d9534a', desc:'성소 언덕의 작은 교회예요. 순례하고, 기도하고, 말씀 퍼즐을 푸는 곳이 모여 있어요.'},
-  cathedral:{id:'cathedral', name:'순례자의 성당', ko:'성당', color:'#5b6b9a', desc:'산티아고 순례길로 이어지는 성당이에요. 조가비 표시가 있는 곳에서 순례자들이 길을 떠나요.', also:['camino']},
-  temple:{id:'temple', name:'고요한 절', ko:'절', color:'#3f7a5a', desc:'풍경 소리가 들리는 절이에요. 말없이 같이 앉아 쉬어 가요.'}
+  lib:{id:'lib', name:'유리 서재', ko:'서재', area:'도구 섬', color:'#2f6bff', desc:'파일을 열고 고치고 공유하는 도구, 그리고 요즘 사람들이 빌려 읽는 책 이야기가 모인 유리 건물이에요.'},
+  craft:{id:'craft', name:'목조 공방', ko:'공방', area:'도구 섬', color:'#c96a2b', desc:'가진 자료를 브로슈어와 발표자료로 다듬어 주는 공방이에요.'},
+  depot:{id:'depot', name:'생활 창고', ko:'창고', area:'도구 섬', color:'#13a17d', desc:'여행 짐 싸기, 냉장고 털기, 중고 기기 검사, 집 구하기처럼 생활 속 문제를 푸는 도구가 쌓여 있어요.'},
+  booth:{id:'booth', name:'취미 부스', ko:'부스', area:'도구 섬', color:'#ef4680', desc:'처음 들어보는 취미와 배울 곳을 찾아 주는 작은 부스예요.'},
+  church:{id:'church', area:'성소 언덕', name:'언덕 위 교회', ko:'교회', color:'#d9534a', desc:'성소 언덕의 작은 교회예요. 순례하고, 기도하고, 말씀 퍼즐을 푸는 곳이 모여 있어요.'},
+  cathedral:{id:'cathedral', area:'성소 언덕', name:'순례자의 성당', ko:'성당', color:'#5b6b9a', desc:'산티아고 순례길로 이어지는 성당이에요. 조가비 표시가 있는 곳에서 순례자들이 길을 떠나요.', also:['camino']},
+  temple:{id:'temple', area:'성소 언덕', name:'고요한 절', ko:'절', color:'#3f7a5a', desc:'풍경 소리가 들리는 절이에요. 말없이 같이 앉아 쉬어 가요.'}
 };
 // 도구 섬: 동쪽 골목 끝에서 보이지 않는 다리를 건너면 나오는 생산성 도구 섬
 const TOOL_WORKS = [
-  {id:'hodadak', name:'호다닥', type:'USE', zone:'도구 섬', url:'https://hodadak.com/', desc:'PDF 합치기, 사진 줄이기, 영상 자르기 같은 파일 도구 67개. 파일을 서버로 보내지 않고 브라우저 안에서 처리해요.', share:'"서류 합치기 10초 컷"', score:3},
-  {id:'ezpz', name:'EZPZ File', type:'USE', zone:'도구 섬', url:'https://ezpzfile.com/ko', desc:'PDF, 한글(HWP), 워드, 엑셀, PPT, PSD, CAD 파일을 설치·가입 없이 브라우저에서 열고 고쳐요.', share:'"한글 파일 폰에서 열기" 꿀팁', score:3},
-  {id:'rawmd', name:'raw-md', type:'USE', zone:'도구 섬', url:'https://raw-md.pages.dev/', desc:'마크다운 글을 서버에 저장하지 않고 링크 하나로 공유해요. 가입 없이 바로.', share:'정리한 메모를 링크로 전달', score:2},
-  {id:'labchure', name:'LabChure', type:'CREATE', zone:'도구 섬', url:'https://www.labchure.com/kr', desc:'PDF, PPT, 워드, 엑셀 파일을 올리면 고유 주소가 있는 웹 브로슈어로 바꿔 줘요.', share:'만든 브로슈어 링크', score:2},
-  {id:'getdeck', name:'getdeck', type:'CREATE', zone:'도구 섬', url:'https://getdeck.co/', desc:'마음에 드는 슬라이드를 내 템플릿으로 저장하고, 웹에서 고치고, 팀원에게 장마다 검토를 받아요.', share:'팀 검토 흐름 소개', score:1, note:'가입이 필요할 수 있어요'},
-  {id:'triplist', name:'트립리스트', type:'USE', zone:'도구 섬', url:'https://triplist.co.kr/', desc:'여행지, 날짜, 동행만 넣으면 날씨와 일행에 맞는 준비물 목록을 만들어 줘요.', share:'"우리 가족 여행 짐 목록"', score:2},
-  {id:'fridge', name:'냉장고 재료로 찾기', type:'USE', zone:'도구 섬', url:'https://sungprofile.cloud/fridge/', desc:'집에 있는 재료를 고르면 지금 만들 수 있는 메뉴와 하나만 더 있으면 되는 메뉴를 보여줘요.', share:'"냉털 메뉴" 결과 캡처', score:2},
-  {id:'devicecheck', name:'기기검사소', type:'USE', zone:'도구 섬', url:'https://device-check-lab-eta.vercel.app/', desc:'중고 노트북이나 모니터를 살 때 키보드, 마우스, 화면을 설치 없이 웹에서 한 번에 검사해요.', share:'중고거래 꿀팁', score:2},
-  {id:'illog', name:'일록', type:'USE', zone:'도구 섬', url:'https://illog.one/', desc:'전국 공공도서관과 대학 도서관의 인기 대출 순위를 한곳에서 봐요.', share:'"요즘 다들 빌려 보는 책"', score:2},
-  {id:'variouslearn', name:'별별배움', type:'USE', zone:'도구 섬', url:'https://variouslearn.com/start', desc:'핸드팬, 유리공예처럼 낯선 취미와 배울 수 있는 공간을 지역과 분야로 찾아요.', share:'"이런 취미도 있었어?"', score:2},
-  {id:'aptinsight', name:'아파트 인사이트', type:'USE', zone:'도구 섬', url:'https://map.apt-insights.com/s/yBIn1bCQcTEJycasrcn1gA', desc:'관심 아파트 주변의 시설, 가격, 도보 거리, 일조를 3D 지도로 둘러봐요.', share:'우리 동네 3D 지도 캡처', score:2}
+  {id:'hodadak', place:'lib', name:'호다닥', type:'USE', zone:'도구 섬', url:'https://hodadak.com/', desc:'PDF 합치기, 사진 줄이기, 영상 자르기 같은 파일 도구 67개. 파일을 서버로 보내지 않고 브라우저 안에서 처리해요.', share:'"서류 합치기 10초 컷"', score:3},
+  {id:'ezpz', place:'lib', name:'EZPZ File', type:'USE', zone:'도구 섬', url:'https://ezpzfile.com/ko', desc:'PDF, 한글(HWP), 워드, 엑셀, PPT, PSD, CAD 파일을 설치·가입 없이 브라우저에서 열고 고쳐요.', share:'"한글 파일 폰에서 열기" 꿀팁', score:3},
+  {id:'rawmd', place:'lib', name:'raw-md', type:'USE', zone:'도구 섬', url:'https://raw-md.pages.dev/', desc:'마크다운 글을 서버에 저장하지 않고 링크 하나로 공유해요. 가입 없이 바로.', share:'정리한 메모를 링크로 전달', score:2},
+  {id:'labchure', place:'craft', name:'LabChure', type:'CREATE', zone:'도구 섬', url:'https://www.labchure.com/kr', desc:'PDF, PPT, 워드, 엑셀 파일을 올리면 고유 주소가 있는 웹 브로슈어로 바꿔 줘요.', share:'만든 브로슈어 링크', score:2},
+  {id:'getdeck', place:'craft', name:'getdeck', type:'CREATE', zone:'도구 섬', url:'https://getdeck.co/', desc:'마음에 드는 슬라이드를 내 템플릿으로 저장하고, 웹에서 고치고, 팀원에게 장마다 검토를 받아요.', share:'팀 검토 흐름 소개', score:1, note:'가입이 필요할 수 있어요'},
+  {id:'triplist', place:'depot', name:'트립리스트', type:'USE', zone:'도구 섬', url:'https://triplist.co.kr/', desc:'여행지, 날짜, 동행만 넣으면 날씨와 일행에 맞는 준비물 목록을 만들어 줘요.', share:'"우리 가족 여행 짐 목록"', score:2},
+  {id:'fridge', place:'depot', name:'냉장고 재료로 찾기', type:'USE', zone:'도구 섬', url:'https://sungprofile.cloud/fridge/', desc:'집에 있는 재료를 고르면 지금 만들 수 있는 메뉴와 하나만 더 있으면 되는 메뉴를 보여줘요.', share:'"냉털 메뉴" 결과 캡처', score:2},
+  {id:'devicecheck', place:'depot', name:'기기검사소', type:'USE', zone:'도구 섬', url:'https://device-check-lab-eta.vercel.app/', desc:'중고 노트북이나 모니터를 살 때 키보드, 마우스, 화면을 설치 없이 웹에서 한 번에 검사해요.', share:'중고거래 꿀팁', score:2},
+  {id:'illog', place:'lib', name:'일록', type:'USE', zone:'도구 섬', url:'https://illog.one/', desc:'전국 공공도서관과 대학 도서관의 인기 대출 순위를 한곳에서 봐요.', share:'"요즘 다들 빌려 보는 책"', score:2},
+  {id:'variouslearn', place:'booth', name:'별별배움', type:'USE', zone:'도구 섬', url:'https://variouslearn.com/start', desc:'핸드팬, 유리공예처럼 낯선 취미와 배울 수 있는 공간을 지역과 분야로 찾아요.', share:'"이런 취미도 있었어?"', score:2},
+  {id:'aptinsight', place:'depot', name:'아파트 인사이트', type:'USE', zone:'도구 섬', url:'https://map.apt-insights.com/s/yBIn1bCQcTEJycasrcn1gA', desc:'관심 아파트 주변의 시설, 가격, 도보 거리, 일조를 3D 지도로 둘러봐요.', share:'우리 동네 3D 지도 캡처', score:2}
 ];
 const ALL_WORKS = WORKS.concat(HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS);
 const VACANTS = [1,2].map(i=>({id:'vacant'+i, name:'빈 가게', type:'USE', zone:'큰길', vacant:true, desc:'아직 비어 있는 큰길 자리예요. 여기에 들어올 작품을 기다리고 있어요.', share:'', score:0}));
@@ -507,7 +515,7 @@ const GALLERY = {id:'gallery', name:'ANIMAL ART GALLERY', type:'CREATE', zone:'�
   share:'"같은 고양이, 100가지 색" 비교', score:3, note:'오호플이 직접 만든 미술관'};
 ALL_WORKS.push(GALLERY);
 const byId = {}; ALL_WORKS.concat(VACANTS).forEach(w=>byId[w.id]=w); byId.gallery = GALLERY;
-for(const k in PLACES) byId[k]=Object.assign({type:'EXPLORE', zone:'성소 언덕', placeKey:k}, PLACES[k]);
+for(const k in PLACES) byId[k]=Object.assign({type:'EXPLORE', zone:PLACES[k].area, placeKey:k}, PLACES[k]);
 
 /* ---------- 저장 (이 브라우저에만) ---------- */
 const store = {
@@ -682,8 +690,8 @@ function alley(points){
   pathLines.push({pts:pts.map(p=>[p.x,p.z]), w:3.4});
   return curve;
 }
-const westAlley = alley([[-12,1],[-20,6],[-29,-1],[-38,7],[-47,1],[-55,6],[-62,1]]);
-const eastAlley = alley([[12,-1],[20,-7],[29,1],[38,-7],[47,0],[55,-5],[62,0]]);
+const westAlley = alley([[-12,1],[-20,6],[-29,-1],[-38,7],[-47,1],[-55,6],[-61,2],[-61,12],[-56,20]]);
+const eastAlley = alley([[12,-1],[20,-7],[29,1],[38,-7],[47,0],[55,-3],[61,0],[61,-10],[56,-19]]);
 
 /* ---------- 간판 텍스처 ---------- */
 function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
@@ -968,14 +976,14 @@ makeBunting(-4.4,-14,4.4,-14,6.2); makeBunting(-4.4,-40,4.4,-40,6.2);
 function placeAlley(curve, list){
   // 굽은 길에서도 가게끼리 겹치지 않도록, 길을 따라가며 빈 자리를 찾아 양옆에 번갈아 세움
   const placed=[]; let t=0.1, side=-1;
-  const free=(x,z)=>placed.every(q=>Math.hypot(q[0]-x,q[1]-z)>6.2) && colliders.every(c=>c.r<2.5 || Math.hypot(c.x-x,c.z-z)>c.r+3.2);
+  const free=(x,z)=>placed.every(q=>Math.hypot(q[0]-x,q[1]-z)>8.5) && !(x>50 && Math.abs(z)<6.5) && colliders.every(c=>c.r<2.5 || Math.hypot(c.x-x,c.z-z)>c.r+3.2);
   list.forEach(w=>{
     let spot=null;
     for(let tt=t; tt<=0.985 && !spot; tt+=0.004){
       const p=curve.getPointAt(tt), tan=curve.getTangentAt(tt), n=new THREE.Vector3(tan.z,0,-tan.x).normalize();
-      for(const sd of [side,-side]){ const x=p.x+n.x*sd*5, z=p.z+n.z*sd*5; if(free(x,z)){ spot=[x,z,p.x,p.z,tt,sd]; break; } }
+      for(const sd of [side,-side]){ const x=p.x+n.x*sd*5.6, z=p.z+n.z*sd*5.6; if(free(x,z)){ spot=[x,z,p.x,p.z,tt,sd]; break; } }
     }
-    if(!spot){ const p=curve.getPointAt(0.98); spot=[p.x,p.z+5,p.x,p.z,0.98,side]; }
+    if(!spot){ const p=curve.getPointAt(0.98); spot=[p.x,p.z+5,p.x,p.z,0.98,side]; console.warn('alley full', w.id); }
     placed.push(spot); makeShop(w, spot[0], spot[1], spot[2], spot[3], 'small');
     t=spot[4]+0.01; side=-spot[5];
   });
@@ -1050,15 +1058,15 @@ function buildArena(w,x,z,openDir){
 })();
 /* ---------- 성소 언덕: 교회·성당·절 ---------- */
 const faithPath = alley([[-3,36],[-12,35],[-22,33],[-32,35],[-40,37]]);
-function faithDoor(id, g, x, z, fx, fz, doorDist, r){
+function faithDoor(id, g, x, z, fx, fz, doorDist, r, top){
   g.position.set(x,0,z); g.rotation.y=Math.atan2(fx-x, fz-z); scene.add(g); tagClick(g, id);
   const yaw=g.rotation.y, dx=Math.sin(yaw), dz=Math.cos(yaw);
-  doors.push({id, x:x+dx*doorDist, z:z+dz*doorDist, top:8, group:g}); shopsById[id]=g;
+  doors.push({id, x:x+dx*doorDist, z:z+dz*doorDist, top:top||8, group:g}); shopsById[id]=g;
   colliders.push({x,z,r}); reserved.push([x,z,r+3]);
 }
 function gable(w,d,h,color){ // 박공지붕: 양쪽으로 기운 판 두 장
   const g=new THREE.Group(); const half=w/2+0.35, len=Math.hypot(half,h);
-  for(const sd of [-1,1]){ const p=mesh(new THREE.BoxGeometry(len,0.22,d+0.6), color); p.rotation.z=sd*Math.atan2(h,half); p.position.set(sd*half/2, h/2, 0); g.add(p); }
+  for(const sd of [-1,1]){ const p=mesh(new THREE.BoxGeometry(len,0.22,d+0.6), color); p.rotation.z=-sd*Math.atan2(h,half); p.position.set(sd*half/2, h/2, 0); g.add(p); }
   return g;
 }
 function crossMesh(color, s){ const g=new THREE.Group(); const v=mesh(new THREE.BoxGeometry(0.16*s,1.1*s,0.16*s),color,{emissive:'#3a2a00'}); const hz=mesh(new THREE.BoxGeometry(0.66*s,0.16*s,0.16*s),color,{emissive:'#3a2a00'}); hz.position.y=0.18*s; g.add(v,hz); return g; }
@@ -1116,41 +1124,175 @@ buildChurch(-17,43, -17,34);
 buildCathedral(-29,24.5, -29,33.5);
 buildTemple(-48,33, -40,37);
 /* ---------- 도구 섬과 보이지 않는 다리 ---------- */
-const TOOL_C={x:108, z:0}, TOOL_R=22, BRIDGE={x0:62, x1:89, hw:1.7};
+const TOOL_C={x:134, z:0}, TOOL_R=38, BRIDGE={x0:62, x1:99, hw:2.1};
 let floatGear=null;
+const TL=(x,z)=>[TOOL_C.x+x, TOOL_C.z+z];
+function slab(x1,z1,x2,z2,w,color){ const len=Math.hypot(x2-x1,z2-z1); const m=mesh(new THREE.BoxGeometry(w,0.12,len),color||'#e9dfc9');
+  m.position.set((x1+x2)/2,0.06,(z1+z2)/2); m.rotation.y=Math.atan2(x2-x1,z2-z1); m.castShadow=false; scene.add(m); return m; }
+function face(g,x,z,fx,fz){ g.position.set(x,0,z); g.rotation.y=Math.atan2(fx-x,fz-z); scene.add(g); }
 (function(){
-  const g=new THREE.Group(); const bottom=islandPieces(g, TOOL_R, 30); g.position.set(TOOL_C.x,0,TOOL_C.z); scene.add(g);
-  for(let i=0;i<4;i++){ const a=i/4*Math.PI*2+0.5, b=mesh(new THREE.DodecahedronGeometry(1.6+Math.random()*1.5,0),'#c9955a'); b.position.set(Math.cos(a)*TOOL_R*0.6, bottom-6-Math.random()*12, Math.sin(a)*TOOL_R*0.6); g.add(b); }
-  // 가운데 작업실 마당
-  const yard=mesh(new THREE.CylinderGeometry(8.2,8.2,0.14,14),'#d8d2c4'); yard.position.y=0.07; yard.castShadow=false; g.add(yard);
-  const path=mesh(new THREE.BoxGeometry(14,0.12,3.2),'#d8d2c4'); path.position.set(-TOOL_R+7.5,0.06,0); path.castShadow=false; g.add(path);
-  // 작업실: 톱니 지붕 공방
-  const ws=new THREE.Group();
-  const body=mesh(new THREE.BoxGeometry(4.4,3.0,4.4),'#e9eef5'); body.position.y=1.5; ws.add(body);
-  for(let k=0;k<3;k++){ const r=mesh(new THREE.BoxGeometry(1.5,0.9,4.6),'#3d6bd6'); r.position.set(-1.45+k*1.45,3.35,0); r.rotation.z=0.45; ws.add(r); }
-  const gear=mesh(new THREE.TorusGeometry(0.8,0.28,5,8),'#ffc83d',{emissive:'#5a4400'}); gear.position.set(0,4.6,0); ws.add(gear); ws.userData.gear=gear;
-  const sg=sign('도구 섬','#13a17d',3.6,'써 보면 쓸모 있는 것들'); sg.position.set(-2.22,2.0,0); sg.rotation.y=-Math.PI/2; ws.add(sg);
-  ws.position.set(TOOL_C.x,0,TOOL_C.z); scene.add(ws); colliders.push({x:TOOL_C.x,z:TOOL_C.z,r:3.4}); floatGear=gear;
-  // 다리 입구 표지판 (본섬 쪽)
-  const post=new THREE.Group(); const pl=mesh(new THREE.BoxGeometry(0.22,2.6,0.22),'#6b4a2c'); pl.position.y=1.3; post.add(pl);
-  const ps=sign('도구 섬 →','#13a17d',2.6,'보이지 않는 다리를 건너요','wood'); ps.position.y=2.5; post.add(ps);
-  post.position.set(BRIDGE.x0-1.5,0,-3.2); post.rotation.y=-Math.PI/2; scene.add(post); colliders.push({x:BRIDGE.x0-1.5,z:-3.2,r:0.4});
+  const g=new THREE.Group(); const bottom=islandPieces(g, TOOL_R, 44); g.position.set(TOOL_C.x,0,TOOL_C.z); scene.add(g);
+  const under=mesh(facet(new THREE.ConeGeometry(TOOL_R*0.4, 20, 8, 2), 3, 'min'), '#7f2d15'); under.rotation.x=Math.PI; under.position.set(-6, bottom-28, 8); g.add(under);
+  for(let i=0;i<6;i++){ const a=i/6*Math.PI*2+0.5, b=mesh(new THREE.DodecahedronGeometry(2+Math.random()*2.4,0),'#c9955a'); b.position.set(Math.cos(a)*TOOL_R*0.6, bottom-6-Math.random()*16, Math.sin(a)*TOOL_R*0.6); g.add(b); }
 })();
-// 유리 발판: 가까이 가면 빛나며 나타나고, 지나가면 희미하게 남아요
+// 중앙 광장: 돌바닥, 톱니 조형물, 벤치, 화단
+(function(){
+  const [cx,cz]=TL(0,0);
+  const yard=mesh(new THREE.CylinderGeometry(9.5,9.5,0.14,18),'#e2d8c3'); yard.position.set(cx,0.07,cz); yard.castShadow=false; scene.add(yard);
+  const ring=mesh(new THREE.TorusGeometry(9.5,0.25,4,36),'#b9ab90'); ring.rotation.x=Math.PI/2; ring.position.set(cx,0.12,cz); ring.castShadow=false; scene.add(ring);
+  const ped=mesh(new THREE.CylinderGeometry(1.5,1.9,1.2,8),'#9aa0b4'); ped.position.set(cx,0.6,cz); scene.add(ped);
+  const pole=mesh(new THREE.CylinderGeometry(0.25,0.25,3.6,8),'#2f3346'); pole.position.set(cx,3,cz); scene.add(pole);
+  const gear=mesh(new THREE.TorusGeometry(1.6,0.45,6,10),'#ffc83d',{emissive:'#5a4400'}); gear.position.set(cx,5.2,cz); scene.add(gear); floatGear=gear;
+  for(let i=0;i<10;i++){ const a=i/10*Math.PI*2, t=mesh(new THREE.BoxGeometry(0.55,0.55,0.7),'#ffc83d',{emissive:'#5a4400'}); t.position.set(Math.cos(a)*2.05,Math.sin(a)*2.05,0); t.rotation.z=a; gear.add(t); }
+  const sg=sign('도구 섬','#13a17d',3.4,'써 보면 쓸모 있는 것들'); sg.position.set(cx-1.95,1.0,cz); sg.rotation.y=-Math.PI/2; scene.add(sg);
+  colliders.push({x:cx,z:cz,r:2.1});
+  for(const a of [0.75,2.35,3.95,5.55]){ const bx=cx+Math.cos(a)*6.6, bz=cz+Math.sin(a)*6.6, bench=new THREE.Group();
+    const seat=mesh(new THREE.BoxGeometry(2.2,0.18,0.7),'#b7804a'); seat.position.y=0.55; bench.add(seat);
+    const back=mesh(new THREE.BoxGeometry(2.2,0.6,0.14),'#b7804a'); back.position.set(0,0.95,-0.3); bench.add(back);
+    for(const sx of [-0.9,0.9]){ const l=mesh(new THREE.BoxGeometry(0.14,0.55,0.6),'#2f3346'); l.position.set(sx,0.27,0); bench.add(l); }
+    face(bench,bx,bz,cx,cz); colliders.push({x:bx,z:bz,r:0.9}); }
+  for(const [x,z,c] of [[-6,-9,'#ef4680'],[9,5,'#ffc83d'],[-9,7,'#7b5cff']]){ const [fx,fz]=TL(x,z);
+    const bed=mesh(new THREE.CylinderGeometry(1.3,1.4,0.5,8),'#8a5a30'); bed.position.set(fx,0.25,fz); scene.add(bed);
+    for(let k=0;k<5;k++){ const f=mesh(new THREE.IcosahedronGeometry(0.28,0),c); f.position.set(fx+(Math.random()-.5)*1.6,0.65,fz+(Math.random()-.5)*1.6); scene.add(f); }
+    colliders.push({x:fx,z:fz,r:1.4}); }
+  for(let i=0;i<8;i++){ const a=i/8*Math.PI*2+0.2; makeLamp(cx+Math.cos(a)*10.6, cz+Math.sin(a)*10.6); }
+})();
+// 길: 다리에서 광장으로 넓은 길, 광장에서 건물마다 갈래길
+slab(...TL(-37,0), ...TL(-9.5,0), 4.6);
+// ① 유리 서재: 나무 데크 위 유리 상자, 검은 평지붕, 책장, 빈백
+function buildGlassLibrary(x,z,fx,fz){
+  const g=new THREE.Group(), W=15, D=9, H=4.6;
+  const deck=mesh(new THREE.BoxGeometry(W+5,0.6,D+5),'#c08a52'); deck.position.y=0.3; g.add(deck);
+  for(let i=0;i<9;i++){ const l=mesh(new THREE.BoxGeometry(W+5,0.02,0.06),'#a5713e'); l.position.set(0,0.61,-(D+5)/2+0.6+i*1.5); l.castShadow=false; g.add(l); }
+  const floor=mesh(new THREE.BoxGeometry(W,0.1,D),'#d9b07a'); floor.position.y=0.65; g.add(floor);
+  for(let i=0;i<5;i++){ const sh=new THREE.Group(); const frame=mesh(new THREE.BoxGeometry(2.4,3.6,0.6),'#8a5a30'); frame.position.y=2.5; sh.add(frame);
+    const cols=['#e8433a','#2f6bff','#ffc83d','#13a17d','#f4efe6','#7b5cff'];
+    for(let r=0;r<4;r++) for(let k=0;k<7;k++){ const bk=mesh(new THREE.BoxGeometry(0.26,0.62,0.4),cols[(r*3+k+i)%cols.length]); bk.position.set(-1.0+k*0.33,1.15+r*0.85,0.12); bk.castShadow=false; sh.add(bk); }
+    sh.position.set(-W/2+1.8+i*2.85,0,-D/2+0.6); g.add(sh); }
+  const glassMat=new THREE.MeshPhongMaterial({color:'#cfefff', transparent:true, opacity:0.28, shininess:90, specular:'#ffffff', depthWrite:false, side:THREE.DoubleSide});
+  for(const [w,d,px,pz] of [[W,0.08,0,D/2],[W,0.08,0,-D/2],[0.08,D,W/2,0],[0.08,D,-W/2,0]]){ const gl=new THREE.Mesh(new THREE.BoxGeometry(w,H,d),glassMat); gl.position.set(px,0.7+H/2,pz); g.add(gl); }
+  const mullion=(x,z)=>{ const m=mesh(new THREE.BoxGeometry(0.16,H,0.16),'#1e1f26'); m.position.set(x,0.7+H/2,z); g.add(m); };
+  for(let i=0;i<=10;i++){ mullion(-W/2+i*W/10, D/2); mullion(-W/2+i*W/10, -D/2); }
+  for(let i=1;i<6;i++){ mullion(W/2,-D/2+i*D/6); mullion(-W/2,-D/2+i*D/6); }
+  const roof=mesh(new THREE.BoxGeometry(W+4,0.55,D+4),'#1e1f26'); roof.position.set(0.8,0.7+H+0.3,0.8); g.add(roof);
+  const soffit=mesh(new THREE.BoxGeometry(W+3.8,0.08,D+3.8),'#d79a5a'); soffit.position.set(0.8,0.7+H,0.8); soffit.castShadow=false; g.add(soffit);
+  for(const [bx,bz] of [[-5.5,D/2+1.6],[2.5,D/2+1.8],[5.6,D/2+1.5],[W/2+1.6,1]]){ const bb=mesh(new THREE.SphereGeometry(0.8,8,6),'#2b2d42'); bb.scale.set(1,0.55,1); bb.position.set(bx,0.95,bz); g.add(bb); }
+  const sg=sign('유리 서재','#2f6bff',3.6,'파일 · 문서 · 책'); sg.position.set(0,0.7+H+0.1,D/2+2.85); g.add(sg);
+  face(g,x,z,fx,fz); tagClick(g,'lib');
+  const yaw=g.rotation.y; doors.push({id:'lib', x:x+Math.sin(yaw)*(D/2+3.4), z:z+Math.cos(yaw)*(D/2+3.4), top:7.2, group:g}); shopsById.lib=g;
+  colliders.push({x:x-Math.cos(yaw)*4.3,z:z+Math.sin(yaw)*4.3,r:5.6},{x:x+Math.cos(yaw)*4.3,z:z-Math.sin(yaw)*4.3,r:5.6});
+}
+// ② 목조 공방: 돌 바닥, 하얀 벽에 나무 뼈대, 주황 비늘 지붕, 굴뚝, 초록 차양, 통과 상자
+function buildWorkshop(x,z,fx,fz){
+  const g=new THREE.Group(), W=7.4, D=6.2, H=3.6;
+  const base=mesh(new THREE.BoxGeometry(W+3.6,0.4,D+3.6),'#d9cfbd'); base.position.y=0.2; g.add(base);
+  const body=mesh(new THREE.BoxGeometry(W,H,D),'#f6efe2'); body.position.y=0.4+H/2; g.add(body);
+  const beam=(w,h,d,px,py,pz)=>{ const m=mesh(new THREE.BoxGeometry(w,h,d),'#8a5a30'); m.position.set(px,py,pz); g.add(m); };
+  for(const sx of [-1,-0.33,0.33,1]) beam(0.32,H,0.32,sx*W/2,0.4+H/2,D/2+0.02);
+  beam(W+0.3,0.32,0.34,0,0.4+H,D/2+0.02); beam(W+0.3,0.32,0.34,0,0.4+H*0.45,D/2+0.02);
+  for(const sx of [-1,1]) beam(0.32,H,0.32,sx*W/2,0.4+H/2,-D/2);
+  const roofCol='#e8873a';
+  for(const sd of [-1,1]){ const half=W/2+0.6, rh=3.0, len=Math.hypot(half,rh);
+    const p=tmesh(new THREE.BoxGeometry(len,0.3,D+1.2), shingleTex(roofCol,3,5)); p.rotation.z=-sd*Math.atan2(rh,half); p.position.set(sd*half/2,0.4+H+rh/2,0); g.add(p); }
+  const gableGeo=new THREE.BufferGeometry(); const gv=new Float32Array([-W/2,0,0, W/2,0,0, 0,3.0,0]); gableGeo.setAttribute('position',new THREE.BufferAttribute(gv,3)); gableGeo.computeVertexNormals();
+  for(const sz of [D/2,-D/2]){ const gm=new THREE.Mesh(gableGeo,new THREE.MeshPhongMaterial({color:'#f6efe2',flatShading:true,side:THREE.DoubleSide})); gm.position.set(0,0.4+H,sz); g.add(gm); }
+  const win=mesh(new THREE.CylinderGeometry(0.6,0.6,0.12,12),'#ffd98a',{emissive:'#5a4210'}); win.rotation.x=Math.PI/2; win.position.set(0,0.4+H+1.2,D/2+0.05); g.add(win);
+  for(const cx2 of [-1.6,1.9]){ const ch=mesh(new THREE.BoxGeometry(0.8,2.4,0.8),'#8a5a30'); ch.position.set(cx2,0.4+H+2.4,-0.8); g.add(ch); }
+  const awn=mesh(new THREE.BoxGeometry(3.6,0.14,1.6),'#3f7a4a'); awn.position.set(-1.6,0.4+H*0.55,D/2+0.8); awn.rotation.x=0.35; g.add(awn);
+  const door=mesh(new THREE.BoxGeometry(1.3,2.2,0.2),'#6b4a2c'); door.position.set(1.8,1.5,D/2+0.06); g.add(door);
+  const tbl=mesh(new THREE.CylinderGeometry(0.7,0.7,0.12,10),'#b7804a'); tbl.position.set(-3.6,1.0,D/2+1.6); g.add(tbl);
+  const tl=mesh(new THREE.CylinderGeometry(0.15,0.15,0.9,6),'#8a5a30'); tl.position.set(-3.6,0.55,D/2+1.6); g.add(tl);
+  for(const [bx,bz] of [[W/2+1.0,D/2+0.6],[W/2+1.0,-0.6]]){ const br=mesh(new THREE.CylinderGeometry(0.55,0.55,1.1,10),'#9c6a3a'); br.position.set(bx,0.95,bz); g.add(br); }
+  const crate=mesh(new THREE.BoxGeometry(1.2,1.0,1.2),'#c69a5e'); crate.position.set(-W/2-0.9,0.9,-0.8); g.add(crate);
+  const sg=sign('목조 공방','#c96a2b',3.0,'브로슈어 · 발표자료','wood'); sg.position.set(-1.4,0.4+H*0.78,D/2+0.08); g.add(sg);
+  for(const px of [-W/2-1.6,W/2+1.6]){ const pt=makePine(0.9); pt.position.set(px,0,-D/2-0.6); g.add(pt); }
+  face(g,x,z,fx,fz); tagClick(g,'craft');
+  const yaw=g.rotation.y; doors.push({id:'craft', x:x+Math.sin(yaw)*(D/2+2.4)+Math.cos(yaw)*1.8, z:z+Math.cos(yaw)*(D/2+2.4)-Math.sin(yaw)*1.8, top:8.6, group:g}); shopsById.craft=g;
+  colliders.push({x,z,r:5.2});
+}
+// ③ 생활 창고: 물결 철판 벽, 둥근 지붕, 큰 미닫이문, 상자 더미
+const corrTex=canvasTex(128,64,g=>{ g.fillStyle='#4fae8f'; g.fillRect(0,0,128,64); for(let i=0;i<16;i++){ g.fillStyle=i%2?'#3f977a':'#5cc29f'; g.fillRect(i*8,0,4,64); } });
+corrTex.wrapS=corrTex.wrapT=THREE.RepeatWrapping; corrTex.repeat.set(4,1);
+function buildDepot(x,z,fx,fz){
+  const g=new THREE.Group(), W=10, D=8, H=3.4;
+  const base=mesh(new THREE.BoxGeometry(W+2,0.35,D+2.4),'#b5b0a6'); base.position.y=0.17; g.add(base);
+  const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,D), new THREE.MeshPhongMaterial({map:corrTex,flatShading:true})); body.position.y=0.35+H/2; body.castShadow=body.receiveShadow=true; g.add(body);
+  const roof=new THREE.Mesh(new THREE.CylinderGeometry(D/2+0.3,D/2+0.3,W+0.6,14,1,false,0,Math.PI), new THREE.MeshPhongMaterial({color:'#d9dee6',flatShading:true,side:THREE.DoubleSide}));
+  roof.rotation.z=Math.PI/2; roof.rotation.y=Math.PI/2; roof.rotation.x=0; roof.position.y=0.35+H; roof.castShadow=true; g.add(roof);
+  const roofFix=new THREE.Group(); roofFix.add(roof); roof.rotation.set(0,0,Math.PI/2); roof.position.set(0,0,0); roofFix.rotation.y=0; roofFix.position.y=0.35+H; g.add(roofFix);
+  const door=mesh(new THREE.BoxGeometry(4.2,3.0,0.18),'#f4c21b'); door.position.set(-0.6,1.85,D/2+0.06); g.add(door);
+  for(let i=0;i<5;i++){ const st=mesh(new THREE.BoxGeometry(4.2,0.06,0.2),'#c9980e'); st.position.set(-0.6,0.6+i*0.6,D/2+0.12); st.castShadow=false; g.add(st); }
+  const rail=mesh(new THREE.BoxGeometry(9,0.16,0.2),'#2f3346'); rail.position.set(0,3.45,D/2+0.12); g.add(rail);
+  for(const [cx2,cy2,cz2,sz] of [[W/2+1.0,0.85,1.2,1.0],[W/2+1.1,0.85,-0.2,1.0],[W/2+1.0,1.85,0.5,0.9],[-W/2-1.0,0.85,2.0,1.0]]){ const c=mesh(new THREE.BoxGeometry(sz,sz,sz),'#c69a5e'); c.position.set(cx2,cy2,cz2); g.add(c); }
+  const pal=mesh(new THREE.BoxGeometry(1.6,0.25,1.2),'#8a5a30'); pal.position.set(3.4,0.5,D/2+1.4); g.add(pal);
+  const sg=sign('생활 창고','#13a17d',3.4,'여행 · 요리 · 집 · 기기'); sg.position.set(3.0,2.75,D/2+0.12); g.add(sg);
+  face(g,x,z,fx,fz); tagClick(g,'depot');
+  const yaw=g.rotation.y; doors.push({id:'depot', x:x+Math.sin(yaw)*(D/2+2.2)-Math.cos(yaw)*0.6, z:z+Math.cos(yaw)*(D/2+2.2)+Math.sin(yaw)*0.6, top:8.4, group:g}); shopsById.depot=g;
+  colliders.push({x:x-Math.cos(yaw)*2.6,z:z+Math.sin(yaw)*2.6,r:4.9},{x:x+Math.cos(yaw)*2.6,z:z-Math.sin(yaw)*2.6,r:4.9});
+}
+// ④ 취미 부스: 줄무늬 차양을 단 작은 노점
+function buildBooth(x,z,fx,fz){
+  const g=new THREE.Group();
+  const counter=mesh(new THREE.BoxGeometry(3.2,1.1,1.2),'#fff8ec'); counter.position.set(0,0.55,0.4); g.add(counter);
+  const back=mesh(new THREE.BoxGeometry(3.2,2.8,0.3),'#f4c9a4'); back.position.set(0,1.4,-0.8); g.add(back);
+  for(const sx of [-1.5,1.5]){ const po=mesh(new THREE.BoxGeometry(0.16,3.1,0.16),'#8a5a30'); po.position.set(sx,1.55,0.95); g.add(po); }
+  for(let i=0;i<6;i++){ const st=mesh(new THREE.BoxGeometry(0.56,0.12,2.2),i%2?'#ffffff':'#ef4680'); st.position.set(-1.4+i*0.56,3.15,0.2); st.rotation.x=0.18; g.add(st); }
+  for(const [ix,c] of [[-0.9,'#7b5cff'],[0,'#ffc83d'],[0.9,'#3fb0ff']]){ const it=mesh(new THREE.IcosahedronGeometry(0.28,0),c); it.position.set(ix,1.35,0.5); g.add(it); }
+  const sg=sign('취미 부스','#ef4680',2.4,'별별배움'); sg.position.set(0,2.1,-0.62); g.add(sg);
+  face(g,x,z,fx,fz); tagClick(g,'booth');
+  const yaw=g.rotation.y; doors.push({id:'booth', x:x+Math.sin(yaw)*2.4, z:z+Math.cos(yaw)*2.4, top:4.6, group:g}); shopsById.booth=g;
+  colliders.push({x,z,r:1.9});
+}
+(function(){
+  const [cx,cz]=TL(0,0);
+  const L=TL(-3,-23), C2=TL(21,-12), D2=TL(17,19), B=TL(-17,16);
+  buildGlassLibrary(L[0],L[1], cx,cz);
+  buildWorkshop(C2[0],C2[1], cx,cz);
+  buildDepot(D2[0],D2[1], cx,cz);
+  buildBooth(B[0],B[1], cx,cz);
+  // 광장에서 건물로 가는 길 (폭을 조금씩 다르게)
+  slab(cx-0.6,cz-9.3, L[0]+0.4,L[1]+8.6, 3.6);
+  slab(cx+7.6,cz-5.4, C2[0]-3.4,C2[1]+3.6, 2.6);
+  slab(cx+6.4,cz+7.0, D2[0]-2.6,D2[1]-4.4, 3.2);
+  slab(cx-6.6,cz+6.6, B[0]+1.4,B[1]-1.4, 2.0, '#efe6d2');
+  // 나무와 바위: 빈 땅에 띄엄띄엄
+  const keep=[[0,0,13],[-3,-23,11],[21,-12,8],[17,19,9],[-17,16,4],[-37,0,6],[-24,0,4]];
+  let placed=0, tries=0;
+  while(placed<26 && tries<400){ tries++; const a=Math.random()*Math.PI*2, r=12+Math.random()*(TOOL_R-15); const x=Math.cos(a)*r, z=Math.sin(a)*r;
+    if(Math.abs(z)<4 && x<-8) continue; if(keep.some(([kx,kz,kr])=>Math.hypot(x-kx,z-kz)<kr)) continue;
+    const [wx,wz]=TL(x,z); const t= placed%3===0 ? leafTree(wx,wz,['#3f8f2a','#5aa832','#2f7a24'],scene) : (()=>{ const pt=makePine(0.8+Math.random()*0.5); pt.position.set(wx,0,wz); scene.add(pt); return pt; })();
+    colliders.push({x:wx,z:wz,r:1.0}); placed++; }
+})();
+// 다리 입구 문 (본섬 쪽과 도구 섬 쪽)
+function bridgeGate(x, sub){
+  const g=new THREE.Group();
+  for(const sz of [-1,1]){ const po=mesh(new THREE.BoxGeometry(0.4,4.2,0.4),'#2f3346'); po.position.set(0,2.1,sz*(BRIDGE.hw+0.5)); g.add(po);
+    const lt=mesh(new THREE.BoxGeometry(0.6,0.6,0.6),'#9fe8ff',{emissive:'#2a9fc8'}); lt.position.set(0,4.5,sz*(BRIDGE.hw+0.5)); g.add(lt); }
+  const top=mesh(new THREE.BoxGeometry(0.5,0.4,BRIDGE.hw*2+1.6),'#2f3346'); top.position.y=4.0; g.add(top);
+  const sg=sign('도구 섬 다리','#13a17d',3.4,sub,'wood'); sg.position.set(0,3.15,0); sg.rotation.y=-Math.PI/2; g.add(sg);
+  g.position.set(x,0,0); scene.add(g);
+  for(const sz of [-1,1]) colliders.push({x, z:sz*(BRIDGE.hw+0.5), r:0.4});
+  return g;
+}
+const gateA=bridgeGate(BRIDGE.x0-1.0,'발밑에 다리가 나타나요');
+const gateB=bridgeGate(BRIDGE.x1+0.6,'마을로 돌아가는 길'); gateB.rotation.y=Math.PI;
+// 유리 발판: 늘 희미하게 보이고, 가까이 가면 환하게
 const bridgeTiles=[];
 (function(){
-  const geo=new THREE.BoxGeometry(1.3,0.14,BRIDGE.hw*2);
-  for(let x=BRIDGE.x0+0.7; x<BRIDGE.x1; x+=1.45){
-    const m=new THREE.Mesh(geo, new THREE.MeshPhongMaterial({color:'#bff3ff', emissive:'#2a8fb0', transparent:true, opacity:0, shininess:80, depthWrite:false}));
-    m.position.set(x,-0.05,0); m.visible=false; scene.add(m); bridgeTiles.push({m, a:0, seen:false});
+  const geo=new THREE.BoxGeometry(1.5,0.22,BRIDGE.hw*2);
+  for(let x=BRIDGE.x0+0.8; x<BRIDGE.x1+1; x+=1.65){
+    const m=new THREE.Mesh(geo, new THREE.MeshPhongMaterial({color:'#9fe8ff', emissive:'#2a9fc8', transparent:true, opacity:0.3, shininess:80, depthWrite:false}));
+    m.position.set(x,0.1,0); scene.add(m); bridgeTiles.push({m, a:0.3, seen:false});
   }
+  // 양옆 빛 기둥: 어느 각도에서도 다리 자리가 보이게
+  for(let x=BRIDGE.x0+3; x<BRIDGE.x1; x+=5) for(const sz of [-1,1]){ const p=mesh(new THREE.CylinderGeometry(0.12,0.12,1.1,6),'#9fe8ff',{emissive:'#2a9fc8'}); p.position.set(x,0.55,sz*(BRIDGE.hw+0.15)); p.castShadow=false; scene.add(p); }
 })();
 let bridgeHintShown=false;
 function updateBridge(dt){
-  const onB = player.x>BRIDGE.x0-6 && player.x<BRIDGE.x1+4 && Math.abs(player.z)<6;
+  const onB = player.x>BRIDGE.x0-8 && player.x<BRIDGE.x1+6 && Math.abs(player.z)<8;
   for(const T of bridgeTiles){ const d=Math.hypot(T.m.position.x-player.x, T.m.position.z-player.z);
-    const target = onB && d<4.2 ? 0.85 : T.seen ? 0.16 : 0; if(onB && d<2.2) T.seen=true;
-    T.a += (target-T.a)*Math.min(1,dt*5); T.m.material.opacity=T.a; T.m.visible=T.a>0.01; }
+    const target = onB && d<5 ? 0.95 : T.seen ? 0.5 : 0.3; if(onB && d<2.4) T.seen=true;
+    T.a += (target-T.a)*Math.min(1,dt*5); T.m.material.opacity=T.a; }
   if(onB && player.x>BRIDGE.x0+1 && !bridgeHintShown){ bridgeHintShown=true; toast('발밑에 다리가 나타나요. 그대로 걸어가 보세요'); }
   if(floatGear) floatGear.rotation.z += dt*0.8;
 }
@@ -1166,13 +1308,6 @@ function clampWorld(o){
   let best=c[0], bd=1e9; for(const q of c){ const d=Math.hypot(q[0]-o.x,q[1]-o.z); if(d<bd){ bd=d; best=q; } }
   o.x=best[0]; o.z=best[1];
 }
-// 도구 가게 10곳: 다리 쪽(서쪽)만 비우고 둥글게
-(function(){
-  const n=TOOL_WORKS.length;
-  TOOL_WORKS.forEach((w,i)=>{ const a = (-150 + i*(300/(n-1))) * Math.PI/180;
-    const x=TOOL_C.x+Math.cos(a)*13.2, z=TOOL_C.z+Math.sin(a)*13.2; makeShop(w, x, z, TOOL_C.x, TOOL_C.z, 'small'); });
-  for(let i=0;i<6;i++){ const a=i/6*Math.PI*2+0.3; makeLamp(TOOL_C.x+Math.cos(a)*8.6, TOOL_C.z+Math.sin(a)*8.6); }
-})();
 
 // 큰 길에서 성소 언덕으로 가는 안내판
 (function(){ const g=new THREE.Group(); const post=mesh(new THREE.BoxGeometry(0.22,2.6,0.22),'#6b4a2c'); post.position.y=1.3; g.add(post);
@@ -1561,10 +1696,10 @@ function openPlace(w){
   currentCard=w.id; track('card_view', w.id);
   const band=$('cardBand'); band.style.setProperty('--c', w.color); band.dataset.glyph = w.ko.slice(0,1);
   $('cardBadges').innerHTML='';
-  ['성소 언덕', w.ko].forEach(b=>{ const s=document.createElement('span'); s.className='badge'; s.textContent=b; $('cardBadges').appendChild(s); });
+  [w.area, w.ko].forEach(b=>{ const s=document.createElement('span'); s.className='badge'; s.textContent=b; $('cardBadges').appendChild(s); });
   $('cardTitle').textContent=w.name; $('cardDesc').textContent=w.desc;
   const kv=$('cardKv'); kv.innerHTML=''; kv.hidden=true;
-  const items=FAITH_WORKS.filter(x=>x.place===w.placeKey).concat((w.also||[]).map(k=>byId[k]));
+  const items=ALL_WORKS.filter(x=>x.place===w.placeKey).concat((w.also||[]).map(k=>byId[k]));
   $('cardMove').textContent = items.length ? '안에 있는 곳 '+items.length+'개. 고르면 새 창으로 열려요.' : '아직 비어 있어요. 이 자리에 들어올 작품을 기다리고 있어요.';
   const act=$('cardActions'); act.innerHTML='';
   const list=document.createElement('div'); list.className='place-list';
@@ -1573,7 +1708,10 @@ function openPlace(w){
     const d=document.createElement('p'); d.textContent=it.desc;
     const a=document.createElement('a'); a.className='btn go'; a.href=withRef(it.url); a.target='_blank'; a.rel='noopener'; a.textContent='들르기 ↗';
     a.addEventListener('click', ()=>visitStart(it.id));
-    row.append(nm,a,d); list.appendChild(row); });
+    const info=document.createElement('button'); info.type='button'; info.className='btn more'; info.textContent='소개·후기';
+    info.addEventListener('click', ()=>openCard(it.id));
+    const bt=document.createElement('div'); bt.className='pi-btns'; bt.append(a,info);
+    row.append(nm,bt,d); list.appendChild(row); });
   if(!items.length){ const a=document.createElement('a'); a.className='btn go'; a.href='#submit'; a.textContent='작품 입점 문의'; a.addEventListener('click', closeCard); list.appendChild(a); }
   act.appendChild(list);
   $('card').hidden=false; $('near').hidden=true;
@@ -1599,7 +1737,7 @@ function openCard(id){
   $('cardMove').textContent = w.soon ? '마을이 자리를 잡으면 이 미술관이 첫 번째 자체 작품으로 문을 열어요.'
     : w.vacant ? '큰길에 남은 빈자리예요. 작품이 입점하면 이 자리에 간판이 걸려요.'
     : w.id==='gallery' ? '오호플이 직접 만든 첫 작품이에요. 다 그리면 미술관에 걸어 보세요.'
-    : w.place ? '성소 언덕 '+PLACES[w.place].name+' 안에 있어요.'
+    : w.place ? PLACES[w.place].area+' '+PLACES[w.place].name+' 안에 있어요.'
     : w.zone==='도구 섬' ? '동쪽 골목 끝, 보이지 않는 다리를 건너면 나오는 도구 섬 가게예요.'
     : w.hidden ? '오호플을 만든 사람이 마을 구석에 숨겨 둔 작품이에요.'
     : w.moved ? '반응이 좋아서 이번 주 골목에서 큰길로 이사 왔어요.'
@@ -1769,7 +1907,7 @@ const GUIDE = [
   {art:'🐾', step:'걷기', title:'마을을 걸어 봐요', html:()=> isTouch
     ? '<ul><li>왼쪽 아래 동그라미를 끌면 걸어요</li><li>화면을 끌면 둘러봐요</li><li>오른쪽 아래 버튼으로 점프해요</li></ul>'
     : '<ul><li><b>W A S D</b> 또는 방향키로 걸어요 (한/영 상관없어요)</li><li>화면을 끌면 둘러보고, <b>스페이스</b>로 점프해요</li><li>바닥의 코인을 주우면 오른쪽 위에 쌓여요</li></ul>'},
-  {art:'🏠', step:'가게', title:'가게 앞에 서면 들어갈 수 있어요', html:'<ul><li>가게 앞에 서면 아래에 <b>들어가기</b> 버튼이 떠요</li><li>작품은 새 창으로 열려요</li><li>15초 이상 둘러보고 돌아오면 <b>도장</b>을 찍어 드려요</li></ul>'},
+  {art:'🏠', step:'가게', title:'가게 앞에 서면 들어갈 수 있어요', html:'<ul><li>가게 문 앞에 서면 화면 가운데에 <b>들어가기</b>가 크게 떠요. 문 쪽으로 계속 걸어가도 들어가져요</li><li>들어가면 작품 설명이 나오고, <b>들르기</b>를 누르면 작품이 새 창으로 열려요</li><li>15초 이상 둘러보고 돌아오면 <b>도장</b>을 찍어 드려요</li></ul>'},
   {art:'🗺️', step:'마을 지도', title:'어디로 갈까요?', html:'<ul><li><b>분수 광장</b>: 이번 주 추천 작품</li><li><b>큰길</b>: 사랑받는 가게 · <b>골목</b>: 막 문을 연 가게</li><li><b>성소 언덕</b>: 남쪽 길 서쪽의 교회 · 성당 · 절</li><li><b>도구 섬</b>: 동쪽 골목 끝에서 보이지 않는 다리를 건너요</li><li>마을 구석에는 <b>숨은 가게</b>도 있어요. 주민에게 물어보세요</li></ul><p>빨리 찾고 싶으면 오른쪽 위 <b>큰길 보기</b>로 목록을 보고, 왼쪽 위 <b>오호플</b>을 누르면 광장으로 돌아와요.</p>'}
 ];
 let guideI=0;
@@ -2373,7 +2511,7 @@ function animateLegs(model, t, moving){
   model.children.forEach(ch=>{ if(ch.userData.leg){ ch.rotation.x = moving ? Math.sin(t*12)*0.6*ch.userData.leg : 0; } });
 }
 
-let nearId=null, last=performance.now();
+let nearId=null, last=performance.now(), enterT=0, enteredId=null;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const camPos=new THREE.Vector3(), camLook=new THREE.Vector3(player.x,2,player.z);
 camYaw = 0;
@@ -2428,9 +2566,14 @@ function frame(now){
     updateNpcTalk(n, distP);
   }
 
-  // 근처 가게·주민
+  // 근처 가게·주민 (가까운 가게는 지붕 위에 이름)
   let best=null, bd=3.6;
-  for(const d of doors){ const dd=Math.hypot(player.x-d.x, player.z-d.z); if(dd<bd){ bd=dd; best=d; } }
+  const tagNear=doors.map(d=>[d,Math.hypot(player.x-d.x, player.z-d.z)]).filter(q=>q[1]<10).sort((a,b)=>a[1]-b[1]).slice(0,3).map(q=>q[0]);
+  for(const d of doors){ const dd=Math.hypot(player.x-d.x, player.z-d.z); if(dd<bd){ bd=dd; best=d; }
+    const show = tagNear.includes(d) && !uiOpen;
+    if(show && !d.tag){ d.tag=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true, depthWrite:false, depthTest:false})); d.tag.renderOrder=20;
+      setLabel(d.tag, labelTex(byId[d.id].name,'tag'), 60); d.tag.position.set(d.group.position.x, d.top+2.4, d.group.position.z); scene.add(d.tag); }
+    if(d.tag){ d.tag.visible=show; if(show) d.tag.material.opacity=Math.min(1,(10-dd)/2.5); } }
   let bn=null, bnd=2.8;
   for(const n of npcs){ if(!n.m.visible) continue; const dd=Math.hypot(player.x-n.x, player.z-n.z); if(dd<bnd){ bnd=dd; bn=n; } }
   const useNpc = !!bn && (!best || bnd < bd);
@@ -2438,10 +2581,20 @@ function frame(now){
   nearId = useNpc ? null : (best ? best.id : null);
   const nearKey = useNpc ? 'n:'+bn.name : nearId;
   if(nearKey && $('card').hidden && $('chat').hidden && !uiOpen){
-    if(lastNearKey!==nearKey || $('near').hidden){ $('nearName').textContent = useNpc ? bn.name : byId[nearId].name; $('nearGo').textContent = useNpc ? '말 걸기' : '들어가기'; }
+    if(lastNearKey!==nearKey || $('near').hidden){ const w=useNpc?null:byId[nearId];
+      $('nearName').textContent = useNpc ? bn.name : w.name; $('nearGo').textContent = useNpc ? '말 걸기' : '들어가기';
+      $('nearKind').textContent = useNpc ? '마을 주민' : (w.placeKey ? w.area+' · '+w.ko : (TYPES[w.type]?TYPES[w.type].ko:'')+' · '+w.zone);
+      $('nearHint').textContent = useNpc ? (isTouch?'눌러서 말 걸기':'E 키로 말 걸기') : (isTouch?'눌러서 들어가기':'문 쪽으로 걸어가거나 E 키'); }
     $('near').hidden=false;
   } else $('near').hidden=true;
   lastNearKey=nearKey;
+  // 문 쪽으로 걸어 들어가면 들어가기
+  if(best && !useNpc && moving && $('card').hidden && $('chat').hidden && !uiOpen){
+    const gx=best.group.position.x-best.x, gz=best.group.position.z-best.z, gl=Math.hypot(gx,gz)||1;
+    const hx=Math.sin(player.yaw), hz=Math.cos(player.yaw);
+    if(bd<2.4 && (hx*gx+hz*gz)/gl>0.55){ enterT+=dt; if(enterT>0.3 && enteredId!==best.id){ enteredId=best.id; enterT=0; openCard(best.id); } } else enterT=0;
+  } else enterT=0;
+  if(!best || best.id!==enteredId) { if(!best || bd>3.2) enteredId=null; }
   if(best && !useNpc){ marker.visible=true; marker.position.set(best.group.position.x, best.top + (reduce?0:Math.sin(t*3)*0.3), best.group.position.z); marker.rotation.y=t*2; }
   else marker.visible=false;
 

@@ -235,6 +235,24 @@ button{cursor:pointer}
 .info-body dd{margin:2px 0 0}
 .info-body a{color:var(--accent)}
 .ph{background:color-mix(in srgb,var(--gold) 38%,transparent);border-radius:4px;padding:0 4px}
+.social{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.social h4{margin:0;font-size:14px;display:flex;gap:6px;align-items:baseline}
+.social h4 small{color:var(--muted);font-weight:500;font-size:12px}
+.rx-row{display:flex;flex-wrap:wrap;gap:6px}
+.rx{background:var(--panel-2);border-radius:999px;padding:5px 11px;font-size:13px}
+.rx b{color:var(--accent);margin-left:2px}
+.cm-list{display:grid;gap:8px}
+.cm{background:var(--panel-2);border-radius:14px;padding:10px 12px;display:grid;gap:3px;font-size:14px;line-height:1.55}
+.cm-head{display:flex;gap:8px;align-items:baseline;font-size:12px;color:var(--muted)}
+.cm-head b{color:var(--ink);font-size:13px}
+.cm-head button{margin-left:auto;background:none;border:0;color:var(--muted);font:inherit;font-size:12px;padding:2px 4px;cursor:pointer}
+.cm p{margin:0;overflow-wrap:anywhere}
+.cm-empty,.cm-note{font-size:13px;color:var(--muted);margin:0}
+.cm-form{display:grid;gap:6px}
+.cm-form input,.cm-form textarea{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:var(--panel);color:var(--ink);width:100%;box-sizing:border-box}
+.cm-form textarea{min-height:68px;resize:vertical}
+.cm-form .row{display:flex;gap:8px;align-items:center}
+.cm-form .row span{font-size:12px;color:var(--muted);margin-right:auto}
 .place-list{display:grid;gap:8px}
 .place-item{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:var(--panel-2);border-radius:14px;padding:12px 14px}
 .place-item b{font-size:16px}
@@ -303,6 +321,7 @@ button{cursor:pointer}
     <dl class="kv" id="cardKv"></dl>
     <p class="move-note" id="cardMove"></p>
     <div class="actions" id="cardActions"></div>
+    <div class="social" id="cardSocial" hidden></div>
   </div>
 </section>
 
@@ -315,7 +334,7 @@ button{cursor:pointer}
 <div class="scrim" id="react" hidden>
   <div class="react" role="dialog" aria-labelledby="reactTitle">
     <h3 id="reactTitle"></h3>
-    <p>하나만 골라 주세요. 매주 반응을 보고 골목에서 큰길로 이사할 가게를 골라요.</p>
+    <p>하나만 골라 주세요. 모두의 반응을 모아 매주 골목에서 큰길로 이사할 가게를 골라요. 카드에서 후기도 남길 수 있어요.</p>
     <div class="react-grid" id="reactGrid"></div>
     <button class="skip" id="reactSkip" type="button">건너뛰기</button>
   </div>
@@ -334,6 +353,8 @@ button{cursor:pointer}
     <div class="feat-row" id="feat"></div>
     <h3 class="sec-title">모든 가게 <small id="countLabel"></small></h3>
     <div class="tiles" id="tiles"></div>
+    <h3 class="sec-title">도구 섬 <small>동쪽 골목 끝, 보이지 않는 다리 너머</small></h3>
+    <div class="tiles" id="toolTiles"></div>
     <h3 class="sec-title">성소 언덕 <small>마을 외곽의 교회 · 성당 · 절</small></h3>
     <div class="tiles" id="faithTiles"></div>
     <section class="g-about" id="gAbout" aria-label="오호플 소개"></section>
@@ -448,7 +469,7 @@ const HIDDEN_WORKS = [
 ];
 // 주소를 아직 못 찾아 마을에 내놓지 않은 섭외 대기 작품 (기록용)
 const PENDING_WORKS = ['이번 생은 야구다','투두메디슨','온라인 담타','음식만안와요(앱)','저 내려요(앱)','Lineora(앱)','에코영어(앱)'];
-// GeekNews에서 찾은 다음 후보 (실용 도구): 별별배움 variouslearn.com, Triplist triplist.co.kr, 아파트 인사이트, 일록 illog.one, 틈락페, 냉장고 재료로 찾기, 기기검사소, raw-md, LabChure, 호다닥
+// 다음 후보: 오름(SEO 진단, 주소 확인 필요), 틈락페, 나가는돈(앱), 퀴즈노리·포착포착·Gotcha Cat(확인 필요)
 // 마을 외곽 성소 언덕: 종교 관련 작품 (교회·성당·절 안에 들어 있음)
 const FAITH_WORKS = [
   {id:'dallyeo', name:'달려가노라', type:'EXPLORE', zone:'성소 언덕', place:'church', url:'https://dallyeoganora.vercel.app/', desc:'바울의 전도여행 길을 매일 한 걸음씩 따라 걷는 온라인 성지순례. 품고 갈 기도제목을 정하고 출발해요.', share:'"순례 N일차" 인증', score:2},
@@ -461,7 +482,20 @@ const PLACES = {
   cathedral:{id:'cathedral', name:'순례자의 성당', ko:'성당', color:'#5b6b9a', desc:'산티아고 순례길로 이어지는 성당이에요. 조가비 표시가 있는 곳에서 순례자들이 길을 떠나요.', also:['camino']},
   temple:{id:'temple', name:'고요한 절', ko:'절', color:'#3f7a5a', desc:'풍경 소리가 들리는 절이에요. 말없이 같이 앉아 쉬어 가요.'}
 };
-const ALL_WORKS = WORKS.concat(HIDDEN_WORKS, FAITH_WORKS);
+// 도구 섬: 동쪽 골목 끝에서 보이지 않는 다리를 건너면 나오는 생산성 도구 섬
+const TOOL_WORKS = [
+  {id:'hodadak', name:'호다닥', type:'USE', zone:'도구 섬', url:'https://hodadak.com/', desc:'PDF 합치기, 사진 줄이기, 영상 자르기 같은 파일 도구 67개. 파일을 서버로 보내지 않고 브라우저 안에서 처리해요.', share:'"서류 합치기 10초 컷"', score:3},
+  {id:'rawmd', name:'raw-md', type:'USE', zone:'도구 섬', url:'https://raw-md.pages.dev/', desc:'마크다운 글을 서버에 저장하지 않고 링크 하나로 공유해요. 가입 없이 바로.', share:'정리한 메모를 링크로 전달', score:2},
+  {id:'labchure', name:'LabChure', type:'CREATE', zone:'도구 섬', url:'https://www.labchure.com/kr', desc:'PDF, PPT, 워드, 엑셀 파일을 올리면 고유 주소가 있는 웹 브로슈어로 바꿔 줘요.', share:'만든 브로슈어 링크', score:2},
+  {id:'getdeck', name:'getdeck', type:'CREATE', zone:'도구 섬', url:'https://getdeck.co/', desc:'마음에 드는 슬라이드를 내 템플릿으로 저장하고, 웹에서 고치고, 팀원에게 장마다 검토를 받아요.', share:'팀 검토 흐름 소개', score:1, note:'가입이 필요할 수 있어요'},
+  {id:'triplist', name:'트립리스트', type:'USE', zone:'도구 섬', url:'https://triplist.co.kr/', desc:'여행지, 날짜, 동행만 넣으면 날씨와 일행에 맞는 준비물 목록을 만들어 줘요.', share:'"우리 가족 여행 짐 목록"', score:2},
+  {id:'fridge', name:'냉장고 재료로 찾기', type:'USE', zone:'도구 섬', url:'https://sungprofile.cloud/fridge/', desc:'집에 있는 재료를 고르면 지금 만들 수 있는 메뉴와 하나만 더 있으면 되는 메뉴를 보여줘요.', share:'"냉털 메뉴" 결과 캡처', score:2},
+  {id:'devicecheck', name:'기기검사소', type:'USE', zone:'도구 섬', url:'https://device-check-lab-eta.vercel.app/', desc:'중고 노트북이나 모니터를 살 때 키보드, 마우스, 화면을 설치 없이 웹에서 한 번에 검사해요.', share:'중고거래 꿀팁', score:2},
+  {id:'illog', name:'일록', type:'USE', zone:'도구 섬', url:'https://illog.one/', desc:'전국 공공도서관과 대학 도서관의 인기 대출 순위를 한곳에서 봐요.', share:'"요즘 다들 빌려 보는 책"', score:2},
+  {id:'variouslearn', name:'별별배움', type:'USE', zone:'도구 섬', url:'https://variouslearn.com/start', desc:'핸드팬, 유리공예처럼 낯선 취미와 배울 수 있는 공간을 지역과 분야로 찾아요.', share:'"이런 취미도 있었어?"', score:2},
+  {id:'aptinsight', name:'아파트 인사이트', type:'USE', zone:'도구 섬', url:'https://map.apt-insights.com/s/yBIn1bCQcTEJycasrcn1gA', desc:'관심 아파트 주변의 시설, 가격, 도보 거리, 일조를 3D 지도로 둘러봐요.', share:'우리 동네 3D 지도 캡처', score:2}
+];
+const ALL_WORKS = WORKS.concat(HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS);
 const VACANTS = [1,2].map(i=>({id:'vacant'+i, name:'빈 가게', type:'USE', zone:'큰길', vacant:true, desc:'아직 비어 있는 큰길 자리예요. 여기에 들어올 작품을 기다리고 있어요.', share:'', score:0}));
 const GALLERY = {id:'gallery', name:'ANIMAL ART GALLERY', type:'CREATE', zone:'큰길 끝', soon:true,
   desc:'동물 도안을 골라 페인트통으로 칠하고, 스티커를 찍고, 다 같이 같은 도안을 칠한 작품을 구경하는 색칠 미술관이에요.',
@@ -1075,6 +1109,65 @@ function buildTemple(x,z,fx,fz){
 buildChurch(-17,43, -17,34);
 buildCathedral(-29,24.5, -29,33.5);
 buildTemple(-48,33, -40,37);
+/* ---------- 도구 섬과 보이지 않는 다리 ---------- */
+const TOOL_C={x:108, z:0}, TOOL_R=22, BRIDGE={x0:62, x1:89, hw:1.7};
+let floatGear=null;
+(function(){
+  const g=new THREE.Group(); const bottom=islandPieces(g, TOOL_R, 30); g.position.set(TOOL_C.x,0,TOOL_C.z); scene.add(g);
+  for(let i=0;i<4;i++){ const a=i/4*Math.PI*2+0.5, b=mesh(new THREE.DodecahedronGeometry(1.6+Math.random()*1.5,0),'#c9955a'); b.position.set(Math.cos(a)*TOOL_R*0.6, bottom-6-Math.random()*12, Math.sin(a)*TOOL_R*0.6); g.add(b); }
+  // 가운데 작업실 마당
+  const yard=mesh(new THREE.CylinderGeometry(8.2,8.2,0.14,14),'#d8d2c4'); yard.position.y=0.07; yard.castShadow=false; g.add(yard);
+  const path=mesh(new THREE.BoxGeometry(14,0.12,3.2),'#d8d2c4'); path.position.set(-TOOL_R+7.5,0.06,0); path.castShadow=false; g.add(path);
+  // 작업실: 톱니 지붕 공방
+  const ws=new THREE.Group();
+  const body=mesh(new THREE.BoxGeometry(4.4,3.0,4.4),'#e9eef5'); body.position.y=1.5; ws.add(body);
+  for(let k=0;k<3;k++){ const r=mesh(new THREE.BoxGeometry(1.5,0.9,4.6),'#3d6bd6'); r.position.set(-1.45+k*1.45,3.35,0); r.rotation.z=0.45; ws.add(r); }
+  const gear=mesh(new THREE.TorusGeometry(0.8,0.28,5,8),'#ffc83d',{emissive:'#5a4400'}); gear.position.set(0,4.6,0); ws.add(gear); ws.userData.gear=gear;
+  const sg=sign('도구 섬','#13a17d',3.6,'써 보면 쓸모 있는 것들'); sg.position.set(-2.22,2.0,0); sg.rotation.y=-Math.PI/2; ws.add(sg);
+  ws.position.set(TOOL_C.x,0,TOOL_C.z); scene.add(ws); colliders.push({x:TOOL_C.x,z:TOOL_C.z,r:3.4}); floatGear=gear;
+  // 다리 입구 표지판 (본섬 쪽)
+  const post=new THREE.Group(); const pl=mesh(new THREE.BoxGeometry(0.22,2.6,0.22),'#6b4a2c'); pl.position.y=1.3; post.add(pl);
+  const ps=sign('도구 섬 →','#13a17d',2.6,'보이지 않는 다리를 건너요','wood'); ps.position.y=2.5; post.add(ps);
+  post.position.set(BRIDGE.x0-1.5,0,-3.2); post.rotation.y=-Math.PI/2; scene.add(post); colliders.push({x:BRIDGE.x0-1.5,z:-3.2,r:0.4});
+})();
+// 유리 발판: 가까이 가면 빛나며 나타나고, 지나가면 희미하게 남아요
+const bridgeTiles=[];
+(function(){
+  const geo=new THREE.BoxGeometry(1.3,0.14,BRIDGE.hw*2);
+  for(let x=BRIDGE.x0+0.7; x<BRIDGE.x1; x+=1.45){
+    const m=new THREE.Mesh(geo, new THREE.MeshPhongMaterial({color:'#bff3ff', emissive:'#2a8fb0', transparent:true, opacity:0, shininess:80, depthWrite:false}));
+    m.position.set(x,-0.05,0); m.visible=false; scene.add(m); bridgeTiles.push({m, a:0, seen:false});
+  }
+})();
+let bridgeHintShown=false;
+function updateBridge(dt){
+  const onB = player.x>BRIDGE.x0-6 && player.x<BRIDGE.x1+4 && Math.abs(player.z)<6;
+  for(const T of bridgeTiles){ const d=Math.hypot(T.m.position.x-player.x, T.m.position.z-player.z);
+    const target = onB && d<4.2 ? 0.85 : T.seen ? 0.16 : 0; if(onB && d<2.2) T.seen=true;
+    T.a += (target-T.a)*Math.min(1,dt*5); T.m.material.opacity=T.a; T.m.visible=T.a>0.01; }
+  if(onB && player.x>BRIDGE.x0+1 && !bridgeHintShown){ bridgeHintShown=true; toast('발밑에 다리가 나타나요. 그대로 걸어가 보세요'); }
+  if(floatGear) floatGear.rotation.z += dt*0.8;
+}
+// 걸을 수 있는 곳: 본섬, 다리, 도구 섬
+function clampWorld(o){
+  const lim=ISLAND_R-6, r=Math.hypot(o.x,o.z);
+  const dT=Math.hypot(o.x-TOOL_C.x, o.z-TOOL_C.z), limT=TOOL_R-3;
+  if(r<=lim || dT<=limT) return;
+  if(o.x>=BRIDGE.x0-8 && o.x<=BRIDGE.x1+6 && Math.abs(o.z)<=BRIDGE.hw-0.3) return;
+  const c=[]; c.push([o.x*lim/r, o.z*lim/r]);
+  c.push([TOOL_C.x+(o.x-TOOL_C.x)*limT/dT, TOOL_C.z+(o.z-TOOL_C.z)*limT/dT]);
+  c.push([Math.max(BRIDGE.x0-8, Math.min(BRIDGE.x1+6, o.x)), Math.max(-(BRIDGE.hw-0.3), Math.min(BRIDGE.hw-0.3, o.z))]);
+  let best=c[0], bd=1e9; for(const q of c){ const d=Math.hypot(q[0]-o.x,q[1]-o.z); if(d<bd){ bd=d; best=q; } }
+  o.x=best[0]; o.z=best[1];
+}
+// 도구 가게 10곳: 다리 쪽(서쪽)만 비우고 둥글게
+(function(){
+  const n=TOOL_WORKS.length;
+  TOOL_WORKS.forEach((w,i)=>{ const a = (-150 + i*(300/(n-1))) * Math.PI/180;
+    const x=TOOL_C.x+Math.cos(a)*13.2, z=TOOL_C.z+Math.sin(a)*13.2; makeShop(w, x, z, TOOL_C.x, TOOL_C.z, 'small'); });
+  for(let i=0;i<6;i++){ const a=i/6*Math.PI*2+0.3; makeLamp(TOOL_C.x+Math.cos(a)*8.6, TOOL_C.z+Math.sin(a)*8.6); }
+})();
+
 // 큰 길에서 성소 언덕으로 가는 안내판
 (function(){ const g=new THREE.Group(); const post=mesh(new THREE.BoxGeometry(0.22,2.6,0.22),'#6b4a2c'); post.position.y=1.3; g.add(post);
   const sg=sign('성소 언덕 →','#8a6bd6',2.6,'교회 · 성당 · 절','wood'); sg.position.y=2.5; g.add(sg);
@@ -1376,7 +1469,79 @@ if(isTouch){
 /* ---------- 카드 ---------- */
 let currentCard=null;
 function reactionTotal(id){ const r=reactions[id]; if(!r) return 0; return Object.values(r).reduce((a,b)=>a+b,0); }
+/* ---------- 모두의 반응과 후기 (Supabase) ---------- */
+const SB={url:'https://qvfhqesqjymofstbfkfu.supabase.co', key:'sb_publishable_-VQtmA76QQk70fU5pF5Jvg_uv5yhFJO'};
+const DEVICE=(()=>{ let d=store.get('pg_device',''); if(typeof d!=='string' || d.length<8){ d='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); store.set('pg_device',d); } return d; })();
+async function sb(path, body, minimal){
+  const h={apikey:SB.key, 'Content-Type':'application/json'}; if(minimal) h.Prefer='return=minimal';
+  const r=await fetch(SB.url+'/rest/v1/'+path, {method: body?'POST':'GET', headers:h, body: body?JSON.stringify(body):undefined});
+  if(!r.ok){ let m=''; try{ m=(await r.json()).message||''; }catch(e){} const er=new Error(m||('http '+r.status)); er.status=r.status; throw er; }
+  return r.status===204 ? null : r.json();
+}
+const social={ok:false, counts:{}, ccount:{}};
+let reported = store.get('pg_reported', []); if(!Array.isArray(reported)) reported=[];
+async function loadSocial(){
+  try{ const [rc,cc]=await Promise.all([sb('rpc/ohopl_reaction_counts',{}), sb('rpc/ohopl_comment_counts',{})]);
+    social.counts={}; rc.forEach(r=>{ (social.counts[r.work_id]=social.counts[r.work_id]||{})[r.kind]=Number(r.n); });
+    social.ccount={}; cc.forEach(r=>{ social.ccount[r.work_id]=Number(r.n); });
+    social.ok=true; if(!$('grid').hidden) renderTiles(); if(currentCard && !byId[currentCard].placeKey) renderSocial(currentCard);
+  }catch(e){ social.ok=false; }
+}
+function sendReaction(id,k){
+  sb('ohopl_reactions',{work_id:id, kind:k, device:DEVICE}, true)
+    .then(()=>{ const c=social.counts[id]=social.counts[id]||{}; c[k]=(c[k]||0)+1; if(currentCard===id) renderSocial(id); })
+    .catch(()=>{});
+}
+function ago(ts){ const s=(Date.now()-new Date(ts).getTime())/1000; if(s<60) return '방금'; if(s<3600) return Math.floor(s/60)+'분 전'; if(s<86400) return Math.floor(s/3600)+'시간 전'; if(s<86400*30) return Math.floor(s/86400)+'일 전'; return new Date(ts).toLocaleDateString('ko-KR'); }
+function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+function renderSocial(id){
+  const box=$('cardSocial'), w=byId[id];
+  if(!w || w.vacant || w.soon || w.placeKey){ box.hidden=true; return; }
+  box.hidden=false; box.innerHTML='';
+  const c=social.counts[id]||{}, tot=REACTS.reduce((a,[k])=>a+(c[k]||0),0);
+  const h=el('h4',null,'다녀온 사람들 반응'); h.appendChild(el('small',null, social.ok ? (tot? tot+'번':'아직 없어요') : '')); box.appendChild(h);
+  const row=el('div','rx-row'); REACTS.forEach(([k,label])=>{ const s=el('span','rx',label+' '); s.appendChild(el('b',null, social.ok? String(c[k]||0) : '·')); row.appendChild(s); }); box.appendChild(row);
+  const h2=el('h4',null,'후기'); h2.appendChild(el('small',null, social.ok && social.ccount[id] ? social.ccount[id]+'개' : '')); box.appendChild(h2);
+  const list=el('div','cm-list'); box.appendChild(list);
+  if(!social.ok){ list.appendChild(el('p','cm-note','후기를 불러오지 못했어요. 잠시 뒤 다시 열어 보세요.')); return; }
+  list.appendChild(el('p','cm-note','불러오는 중…'));
+  loadComments(id, list);
+  if(visited.includes(id)){
+    const f=el('form','cm-form');
+    const nick=el('input'); nick.maxLength=16; nick.placeholder='닉네임'; nick.value=store.get('pg_nick','') || (ANIMAL_KO[myKind]+' 친구'); nick.setAttribute('aria-label','닉네임');
+    const ta=el('textarea'); ta.maxLength=200; ta.placeholder='어땠는지, 누구에게 추천하는지 한 줄로 남겨 주세요'; ta.setAttribute('aria-label','후기');
+    const r=el('div','row'); const cnt=el('span',null,'0/200 · 주소(링크)는 못 남겨요'); const b=el('button','btn go','남기기'); b.type='submit'; b.style.flex='none'; b.style.minWidth='0';
+    ta.addEventListener('input', ()=>{ cnt.textContent=ta.value.length+'/200 · 주소(링크)는 못 남겨요'; });
+    r.append(cnt,b); f.append(nick,ta,r); box.appendChild(f);
+    f.addEventListener('submit', async e=>{ e.preventDefault();
+      const nk=nick.value.trim(), body=ta.value.trim();
+      if(!nk){ toast('닉네임을 적어 주세요'); return; } if(body.length<2){ toast('두 글자 이상 적어 주세요'); return; }
+      b.disabled=true; store.set('pg_nick', nk);
+      try{ await sb('ohopl_comments',{work_id:id, nickname:nk, body, device:DEVICE}, true); track('comment', id);
+        social.ccount[id]=(social.ccount[id]||0)+1; toast('후기를 남겼어요. 고마워요!'); renderSocial(id);
+      }catch(err){ const m=err.message||'';
+        toast(m.includes('no_links') ? '주소(링크)는 남길 수 없어요' : m.includes('too_fast') ? '조금 있다가 다시 남겨 주세요' : m.includes('too_many') ? '오늘은 더 남길 수 없어요. 내일 또 와 주세요' : '지금은 남길 수 없어요. 잠시 뒤 다시 해 주세요');
+        b.disabled=false; }
+    });
+  } else {
+    box.appendChild(el('p','cm-note','15초 이상 둘러보고 돌아오면 반응과 후기를 남길 수 있어요.'));
+  }
+}
+async function loadComments(id, list){
+  try{ const rows=await sb('rpc/ohopl_comments_for',{w:id}); if(currentCard!==id) return;
+    list.innerHTML='';
+    if(!rows.length){ list.appendChild(el('p','cm-empty','아직 후기가 없어요. 첫 번째로 남겨 보세요.')); return; }
+    rows.forEach(c=>{ const d=el('div','cm'); const hd=el('div','cm-head'); hd.append(el('b',null,c.nickname), el('span',null,ago(c.created_at)));
+      const rb=el('button',null, reported.includes(c.id)?'신고함':'신고'); rb.type='button'; rb.disabled=reported.includes(c.id);
+      rb.addEventListener('click', ()=>{ rb.disabled=true; rb.textContent='신고함'; reported.push(c.id); store.set('pg_reported', reported);
+        sb('ohopl_reports',{comment_id:c.id, device:DEVICE}, true).catch(()=>{}); toast('신고했어요. 여러 명이 신고하면 자동으로 숨겨져요'); });
+      hd.appendChild(rb); d.append(hd, el('p',null,c.body)); list.appendChild(d); });
+  }catch(e){ list.innerHTML=''; list.appendChild(el('p','cm-note','후기를 불러오지 못했어요.')); }
+}
+loadSocial();
+
 function openPlace(w){
+  $('cardSocial').hidden=true;
   currentCard=w.id; track('card_view', w.id);
   const band=$('cardBand'); band.style.setProperty('--c', w.color); band.dataset.glyph = w.ko.slice(0,1);
   $('cardBadges').innerHTML='';
@@ -1418,6 +1583,7 @@ function openCard(id){
   $('cardMove').textContent = w.soon ? '마을이 자리를 잡으면 이 미술관이 첫 번째 자체 작품으로 문을 열어요.'
     : w.vacant ? '큰길에 남은 빈자리예요. 작품이 입점하면 이 자리에 간판이 걸려요.'
     : w.place ? '성소 언덕 '+PLACES[w.place].name+' 안에 있어요.'
+    : w.zone==='도구 섬' ? '동쪽 골목 끝, 보이지 않는 다리를 건너면 나오는 도구 섬 가게예요.'
     : w.hidden ? '오호플을 만든 사람이 마을 구석에 숨겨 둔 작품이에요.'
     : w.moved ? '반응이 좋아서 이번 주 골목에서 큰길로 이사 왔어요.'
     : w.zone==='골목' ? '골목에서 막 문을 연 가게예요. 매주 반응을 보고 큰길로 이사할 가게를 골라요.'
@@ -1438,6 +1604,7 @@ function openCard(id){
     const f=document.createElement('button'); f.type='button'; f.className='btn'; f.textContent='마을에서 찾기';
     f.addEventListener('click', ()=>{ closeCard(); showGrid(false); goTo(id); }); act.appendChild(f);
   }
+  renderSocial(id);
   $('card').hidden=false; $('near').hidden=true;
   $('cardClose').focus({preventScroll:true});
 }
@@ -1473,7 +1640,7 @@ function openReact(id){
   reactId=id; $('reactTitle').textContent = '방금 들른 「' + byId[id].name + '」 어땠어요?';
   const g=$('reactGrid'); g.innerHTML='';
   REACTS.forEach(([k,label])=>{ const b=document.createElement('button'); b.type='button'; b.textContent=label;
-    b.addEventListener('click', ()=>{ reactions[id]=reactions[id]||{}; reactions[id][k]=(reactions[id][k]||0)+1; store.set('pg_reactions',reactions); track('reaction', id);
+    b.addEventListener('click', ()=>{ reactions[id]=reactions[id]||{}; reactions[id][k]=(reactions[id][k]||0)+1; store.set('pg_reactions',reactions); track('reaction', id); sendReaction(id,k);
       closeReact(); toast('남겼어요. 도장 ' + visited.length + '/' + ALL_WORKS.length); if(currentCard===id) openCard(id); });
     g.appendChild(b); });
   $('react').hidden=false; g.firstChild.focus({preventScroll:true});
@@ -1508,7 +1675,8 @@ const PAGES = {
     <div><dt>작품은 누가 만들었나요?</dt><dd>각 작품의 제작자가 만들었어요. 오호플은 작품을 골라 소개하고 원래 사이트로 연결해요. 마을 구석의 숨은 가게는 오호플을 만든 사람이 만든 작품이에요.</dd></div>
     <div><dt>왜 새 창으로 이동하나요?</dt><dd>작품이 제작자 사이트에서 운영되기 때문이에요. 둘러보고 돌아오면 반응을 남길 수 있어요.</dd></div>
     <div><dt>도장은 언제 찍히나요?</dt><dd>작품에 들러 15초 이상 둘러보고 돌아오면 찍혀요.</dd></div>
-    <div><dt>큰길로 이사하는 가게는 어떻게 정하나요?</dt><dd>매주 방문자 반응을 보고 운영자가 골라요. 반응이 쌓이면 자동으로 이사하는 기능은 준비 중이에요.</dd></div>
+    <div><dt>큰길로 이사하는 가게는 어떻게 정하나요?</dt><dd>모두가 남긴 반응과 후기를 보고 매주 운영자가 골라요.</dd></div>
+    <div><dt>후기는 어떻게 남기나요?</dt><dd>작품에 들러 15초 이상 둘러보고 돌아오면 그 작품 카드에서 반응과 후기를 남길 수 있어요. 가입 없이 닉네임만 적으면 돼요. 이상한 후기는 신고해 주세요.</dd></div>
     <div><dt>주민은 AI인가요?</dt><dd>아니요. 주민 대사는 미리 써 둔 예시 대사예요. 시간, 날씨, 내 행동에 맞춰 골라서 말해요.</dd></div>
     <div><dt>아이도 이용할 수 있나요?</dt><dd>마을은 누구나 이용할 수 있어요. 외부 작품은 각 제작자가 운영하니, 연령 권장 표시가 있는 작품은 확인하고 이용해 주세요.</dd></div>
     <div><dt>소리가 안 나요.</dt><dd>브라우저 정책 때문에 화면을 한 번 누르거나 키를 눌러야 소리가 나요. 오른쪽 위 시간·날씨 메뉴에서 효과음과 배경 소리를 켜고 끌 수 있어요.</dd></div>
@@ -1528,6 +1696,7 @@ const PAGES = {
     <h3>제4조 (소개 기준과 중단)</h3><p>운영자는 작품을 직접 골라 소개하며, 불법·유해 정보, 피싱·악성코드, 권리 침해 신고가 확인되었거나 링크가 오랫동안 작동하지 않으면 소개를 중단할 수 있어요.</p>
     <h3>제5조 (권리 침해 신고)</h3><p>권리를 침해당했다고 판단하는 사람은 <a href="#submit">입점·삭제 요청</a> 페이지의 방법으로 신고할 수 있어요. 운영자는 확인 후 소개를 임시로 중단하는 등 필요한 조치를 해요.</p>
     <h3>제6조 (이용자의 의무)</h3><p>자동화 도구로 과도하게 접근하거나 서비스를 변조하는 등 정상적인 운영을 방해해서는 안 돼요.</p>
+    <h3>제6조의2 (후기와 반응)</h3><p>후기는 작품을 직접 둘러보고 온 이용자가 남길 수 있어요. 욕설, 비방, 개인정보, 광고, 불법 정보, 다른 사람의 권리를 침해하는 내용은 남길 수 없어요. 신고가 쌓인 후기는 자동으로 숨겨지고, 운영자는 이 기준에 어긋난 후기를 알리지 않고 숨기거나 지울 수 있어요. 후기의 권리와 책임은 작성자에게 있으며, 작성자는 언제든 이메일로 삭제를 요청할 수 있어요.</p>
     <h3>제7조 (서비스 변경과 중단)</h3><p>운영자는 서비스 내용을 바꾸거나 중단할 수 있으며, 중요한 변경은 사이트에 미리 알려요.</p>
     <h3>제8조 (책임의 제한)</h3><p>운영자는 무료로 제공되는 서비스와 외부 작품 이용으로 생긴 손해에 대해 운영자의 고의나 중대한 과실이 없는 한 책임을 지지 않아요.</p>
     <h3>제9조 (준거법과 관할)</h3><p>이 약관은 대한민국 법을 따르며, 분쟁은 민사소송법에 따른 관할 법원에서 해결해요.</p>
@@ -1538,15 +1707,17 @@ const PAGES = {
     <h3>제2조 (수집하는 정보)</h3>
     <div class="tbl"><table><tr><th>수집 시점</th><th>항목</th><th>방법</th></tr>
       <tr><td>서비스 이용 시</td><td>브라우저 종류, 기기 종류, 접속 IP(익명화), 방문 페이지, 클릭·스크롤 등 이용 기록</td><td>자동 수집 (Microsoft Clarity)</td></tr>
+      <tr><td>후기·반응·신고를 남길 때</td><td>닉네임, 후기 내용, 고른 반응, 기기를 구분하는 임의 값(이름·연락처와 연결되지 않음), 작성 시각</td><td>직접 입력, 자동 생성</td></tr>
       <tr><td>이메일 문의·입점 신청 시</td><td>이름 또는 닉네임, 이메일 주소, 문의 내용</td><td>이메일 직접 발송</td></tr></table></div>
     <p>고른 동물, 코인, 도장, 남긴 반응, 주민과의 친밀도, 찾은 숨은 가게, 시간·날씨·소리 설정은 브라우저 로컬 스토리지에만 저장돼요. 이 기기에만 남고 서버로 보내지 않아요.</p>
-    <h3>제3조 (수집 목적)</h3><ul><li>서비스 운영과 개선: 방문 통계, 오류 확인, 어떤 작품이 사랑받는지 파악</li><li>문의 응대: 입점 신청과 질문, 제안 처리</li></ul>
+    <h3>제3조 (수집 목적)</h3><ul><li>서비스 운영과 개선: 방문 통계, 오류 확인, 어떤 작품이 사랑받는지 파악</li><li>후기와 반응 보여 주기, 도배와 악성 글 막기</li><li>문의 응대: 입점 신청과 질문, 제안 처리</li></ul>
     <h3>제4조 (제3자 도구)</h3>
     <div class="tbl"><table><tr><th>도구</th><th>제공 회사</th><th>목적</th></tr>
       <tr><td>Microsoft Clarity</td><td>Microsoft Corporation</td><td>사용자 경험 분석 (히트맵, 세션 기록)</td></tr>
-      <tr><td>Vercel</td><td>Vercel Inc.</td><td>사이트 호스팅</td></tr></table></div>
+      <tr><td>Vercel</td><td>Vercel Inc.</td><td>사이트 호스팅</td></tr>
+      <tr><td>Supabase</td><td>Supabase Inc.</td><td>후기·반응 저장</td></tr></table></div>
     <p>Microsoft의 개인정보 처리 방침은 privacy.microsoft.com에서 확인할 수 있어요.</p>
-    <h3>제5조 (보관과 파기)</h3><ul><li>이메일로 받은 문의는 처리 후 1년 이내에 파기해요.</li><li>통계 도구가 수집한 데이터는 각 도구의 정책에 따라요.</li><li>로컬 스토리지 정보는 브라우저 설정에서 사이트 데이터를 지우면 바로 사라져요.</li></ul>
+    <h3>제5조 (보관과 파기)</h3><ul><li>이메일로 받은 문의는 처리 후 1년 이내에 파기해요.</li><li>후기와 반응은 서비스를 운영하는 동안 보관하고, 삭제를 요청하면 바로 지워요. 기기 값은 작성자 본인 확인과 도배 방지에만 써요.</li><li>통계 도구가 수집한 데이터는 각 도구의 정책에 따라요.</li><li>로컬 스토리지 정보는 브라우저 설정에서 사이트 데이터를 지우면 바로 사라져요.</li></ul>
     <h3>제6조 (외부 작품으로 이동할 때)</h3><p>작품으로 이동하면 해당 사이트의 개인정보처리방침이 적용돼요. 이동 주소에는 오호플에서 왔다는 표시(ref=ohopl, utm_source=ohopl)만 붙고, 개인을 알아볼 수 있는 정보는 들어가지 않아요.</p>
     <h3>제7조 (이용자 권리)</h3><p>개인정보 처리 현황 확인, 삭제, 처리 정지를 이메일(eunhaebleu@naver.com)로 요청할 수 있어요. 받은 뒤 영업일 기준 5일 안에 처리해요.</p>
     <h3>제8조 (개인정보 보호책임자)</h3><p>문의, 불만, 피해 구제 신청은 아래로 연락해 주세요.<br>이메일 eunhaebleu@naver.com · 서비스명 오호플(OHOPL)</p>
@@ -1581,7 +1752,7 @@ const GUIDE = [
     ? '<ul><li>왼쪽 아래 동그라미를 끌면 걸어요</li><li>화면을 끌면 둘러봐요</li><li>오른쪽 아래 버튼으로 점프해요</li></ul>'
     : '<ul><li><b>W A S D</b> 또는 방향키로 걸어요 (한/영 상관없어요)</li><li>화면을 끌면 둘러보고, <b>스페이스</b>로 점프해요</li><li>바닥의 코인을 주우면 오른쪽 위에 쌓여요</li></ul>'},
   {art:'🏠', step:'가게', title:'가게 앞에 서면 들어갈 수 있어요', html:'<ul><li>가게 앞에 서면 아래에 <b>들어가기</b> 버튼이 떠요</li><li>작품은 새 창으로 열려요</li><li>15초 이상 둘러보고 돌아오면 <b>도장</b>을 찍어 드려요</li></ul>'},
-  {art:'🗺️', step:'마을 지도', title:'어디로 갈까요?', html:'<ul><li><b>분수 광장</b>: 이번 주 추천 작품</li><li><b>큰길</b>: 사랑받는 가게 · <b>골목</b>: 막 문을 연 가게</li><li><b>성소 언덕</b>: 남쪽 길 서쪽의 교회 · 성당 · 절</li><li>마을 구석에는 <b>숨은 가게</b>도 있어요. 주민에게 물어보세요</li></ul><p>빨리 찾고 싶으면 오른쪽 위 <b>큰길 보기</b>로 목록을 보고, 왼쪽 위 <b>오호플</b>을 누르면 광장으로 돌아와요.</p>'}
+  {art:'🗺️', step:'마을 지도', title:'어디로 갈까요?', html:'<ul><li><b>분수 광장</b>: 이번 주 추천 작품</li><li><b>큰길</b>: 사랑받는 가게 · <b>골목</b>: 막 문을 연 가게</li><li><b>성소 언덕</b>: 남쪽 길 서쪽의 교회 · 성당 · 절</li><li><b>도구 섬</b>: 동쪽 골목 끝에서 보이지 않는 다리를 건너요</li><li>마을 구석에는 <b>숨은 가게</b>도 있어요. 주민에게 물어보세요</li></ul><p>빨리 찾고 싶으면 오른쪽 위 <b>큰길 보기</b>로 목록을 보고, 왼쪽 위 <b>오호플</b>을 누르면 광장으로 돌아와요.</p>'}
 ];
 let guideI=0;
 function openGuide(i){
@@ -1628,7 +1799,7 @@ function tile(w, big){
   const glyph=document.createElement('span'); glyph.className='glyph'; glyph.textContent=w.name.replace(/[^가-힣A-Za-z0-9]/g,'').slice(0,1);
   const lab=document.createElement('span'); lab.className='tlabel';
   const nm=document.createElement('span'); nm.className='tname'; nm.textContent=w.name;
-  const meta=document.createElement('span'); meta.className='tmeta'; meta.textContent=T.ko+' · '+w.zone+(visited.includes(w.id)?' · 도장':'');
+  const meta=document.createElement('span'); meta.className='tmeta'; const rc=social.counts[w.id]; const rn=rc?Object.values(rc).reduce((a,b)=>a+b,0):0; meta.textContent=T.ko+' · '+w.zone+(visited.includes(w.id)?' · 도장':'')+(rn?' · 반응 '+rn:'');
   lab.append(nm,meta); b.append(glyph,lab);
   if(w.soon){ const f=document.createElement('span'); f.className='flag'; f.textContent='곧 개장'; b.appendChild(f); }
   else if(!w.url){ const f=document.createElement('span'); f.className='flag'; f.textContent='주소 확인 중'; b.appendChild(f); }
@@ -1650,6 +1821,7 @@ function renderTiles(){
   list.forEach(w=>t.appendChild(tile(w, w.score===3)));
   if(filter==='ALL'||filter==='CREATE'){ if(!q || 'animal art gallery 색칠 그림 미술관'.includes(q)) t.appendChild(tile(GALLERY,false)); }
   if(filter==='ALL' && !q) HIDDEN_WORKS.filter(w=>!found.includes(w.id)).forEach(()=>t.appendChild(lockedTile()));
+  const tt=$('toolTiles'); tt.innerHTML=''; TOOL_WORKS.filter(match).sort((a,b)=>b.score-a.score).forEach(w=>tt.appendChild(tile(w,false)));
   const ft=$('faithTiles'); ft.innerHTML=''; FAITH_WORKS.filter(match).forEach(w=>ft.appendChild(tile(w,false)));
   $('countLabel').textContent = list.length + featList.length ? (list.length+featList.length)+'곳' : '';
   if(!list.length && !featList.length){ const p=document.createElement('p'); p.className='empty'; p.textContent='맞는 가게가 없어요. 다른 말로 찾아보거나 골목을 걸어 보세요.'; t.appendChild(p); }
@@ -2066,11 +2238,12 @@ function chips(list){
   const box=$('chatChips'); box.innerHTML='';
   list.forEach(([label,fn])=>{ const b=document.createElement('button'); b.type='button'; b.textContent=label; b.addEventListener('click',()=>fn(label)); box.appendChild(b); });
 }
-const AREA_KO={plaza:'분수 광장', main:'큰길', west:'서쪽 골목', east:'동쪽 골목', gate:'입구 길', forest:'숲', faith:'성소 언덕'};
+const AREA_KO={plaza:'분수 광장', main:'큰길', west:'서쪽 골목', east:'동쪽 골목', gate:'입구 길', forest:'숲', faith:'성소 언덕', tools:'도구 섬'};
 const AREA_TEXT={plaza:'분수 광장이야. 이번 주 가장 눈에 띄는 작품 네 개가 포털로 열려 있어', main:'큰길이야. 찾는 게 있을 때 오는 곳이지. 끝에 곧 열릴 미술관이 있어',
   west:'서쪽 골목이야. 막 문을 연 가게들이 모여 있어. 반응이 쌓이면 큰길로 이사 가', east:'동쪽 골목이야. 조금 엉뚱하고 재밌는 가게가 많아',
-  gate:'마을 입구 길이야. 쭉 가면 분수 광장이 나와', forest:'길 밖 숲이야. 조용해서 쉬기 좋아', faith:'성소 언덕이야. 교회, 성당, 절이 있어. 조용히 쉬어 가는 곳이야'};
+  gate:'마을 입구 길이야. 쭉 가면 분수 광장이 나와', forest:'길 밖 숲이야. 조용해서 쉬기 좋아', faith:'성소 언덕이야. 교회, 성당, 절이 있어. 조용히 쉬어 가는 곳이야', tools:'도구 섬이야. 놀이 말고 일할 때 쓸모 있는 도구들이 모여 있어'};
 function areaOf(x,z){
+  if(Math.hypot(x-TOOL_C.x,z-TOOL_C.z)<TOOL_R+2 || (x>BRIDGE.x0 && Math.abs(z)<4)) return 'tools';
   if(Math.hypot(x,z)<13.8) return 'plaza';
   if(Math.abs(x)<4.8 && z<-11) return 'main';
   if(Math.abs(x)<3.6 && z>11) return 'gate';
@@ -2176,7 +2349,7 @@ addEventListener('resize', resize); resize();
 function collide(o, rad){
   for(const c of colliders){ const dx=o.x-c.x, dz=o.z-c.z, d=Math.hypot(dx,dz), m=c.r+rad;
     if(d<m && d>0.0001){ o.x=c.x+dx/d*m; o.z=c.z+dz/d*m; } }
-  const r=Math.hypot(o.x,o.z), lim=ISLAND_R-6; if(r>lim){ o.x*=lim/r; o.z*=lim/r; }
+  clampWorld(o);
 }
 function animateLegs(model, t, moving){
   model.children.forEach(ch=>{ if(ch.userData.leg){ ch.rotation.x = moving ? Math.sin(t*12)*0.6*ch.userData.leg : 0; } });
@@ -2264,7 +2437,7 @@ function frame(now){
       b.rotation.y=-u.a+(u.s>0?0:Math.PI); const f=Math.sin(t*14+u.r)*0.7; u.L.rotation.z=f; u.Rg.rotation.z=-f; });
   }
 
-  updateCoins(t,dt); updateEnv(dt,t); updateWeather(dt,t); updateSeason(dt,t); updateAudio();
+  updateCoins(t,dt); updateEnv(dt,t); updateWeather(dt,t); updateSeason(dt,t); updateAudio(); updateBridge(dt);
   for(const tr of treasures){ if(!found.includes(tr.id) && Math.hypot(player.x-tr.x, player.z-tr.z)<7) discover(tr.id); }
 
   // 카메라

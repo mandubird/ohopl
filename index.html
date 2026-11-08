@@ -519,7 +519,7 @@ const TOOL_WORKS = [
   {id:'aptinsight', place:'lib', name:'아파트 인사이트', type:'USE', zone:'도구 섬', url:'https://map.apt-insights.com/s/yBIn1bCQcTEJycasrcn1gA', desc:'관심 아파트 주변의 시설, 가격, 도보 거리, 일조를 3D 지도로 둘러봐요.', share:'우리 동네 3D 지도 캡처', score:2}
 ];
 // 큰길 카드 썸네일: 작품 첫 화면을 직접 찍어 /thumbs/에 둔 것만 (요청하면 내림)
-const THUMBS = new Set(['eightbil']);
+const THUMBS = new Set(['eightbil','mugunghwa','photobooth','kimbap','rocky','geungrak','smash','neuseun','gyeoljae','jasu','gazua','wizard','sajang','domang','dental','heok','geunimti','imongu','warlords','mangmang','nolda','museum','mellomi','julseo','hangang','hypeseoul','lightsout','wakato','haewoo','eunha','dallyeo','onsuim','crossero','sansa','hodadak','ezpz','labchure','triplist','fridge','devicecheck','illog','variouslearn','aptinsight']);
 const THUMB_BASE = 'https://ohopl.vercel.app/thumbs/';
 const ALL_WORKS = WORKS.concat(HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS);
 const VACANTS = [1,2].map(i=>({id:'vacant'+i, name:'빈 가게', type:'USE', zone:'큰길', vacant:true, desc:'아직 비어 있는 큰길 자리예요. 여기에 들어올 작품을 기다리고 있어요.', share:'', score:0}));

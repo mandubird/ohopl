@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node tools/build-seo.mjs",
+  "outputDirectory": ".",
+  "installCommand": "echo skip"
+}

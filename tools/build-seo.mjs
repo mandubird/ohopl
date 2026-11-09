@@ -8,7 +8,7 @@
 //   /llms.txt           AI 답변 서비스용 요약
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const BASE = (process.argv[2] || 'https://ohopl.vercel.app').replace(/\/$/, '');
+const BASE = (process.argv[2] || process.env.SITE_URL || 'https://ohopl.vercel.app').replace(/\/$/, '');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const a = html.indexOf('const TYPES = {'), b = html.indexOf('const VACANTS');
 const g = html.indexOf('const GALLERY = {'), ge = html.indexOf('};', g) + 2;
@@ -93,7 +93,7 @@ const listLd = {'@context':'https://schema.org','@graph':[{'@type':'CollectionPa
   {'@type':'ItemList','name':'오호플이 고른 AI 창작 작품','numberOfItems':works.length,'itemListElement':works.map((w,i)=>({'@type':'ListItem','position':i+1,'url':pageUrl(w),'name':w.name}))}]};
 fs.mkdirSync(path.join(ROOT, 'works'), {recursive:true});
 fs.writeFileSync(path.join(ROOT, 'works', 'index.html'), head('오호플 작품 전체 목록 — AI로 만든 게임·도구·웹서비스', `오호플이 직접 써 보고 고른 ${works.length}개 작품. 놀이, 도구, 만들기, 배우기, 탐험으로 나눠 봤어요. 모두 설치 없이 브라우저에서 바로.`, BASE+'/works/', BASE+'/og-image.png', listLd)
-  + `<h1>작품 전체 목록</h1><p class="lead">오호플이 직접 써 보고 고른 ${works.length}개 작품이에요. 모두 설치 없이 브라우저에서 바로 열 수 있어요.</p>`
+  + `<h1>작품 전체 목록</h1><p class="lead">오호플이 직접 써 보고 고른 ${works.length}개 작품이에요. 모두 설치 없이 브라우저에서 바로 열 수 있어요.</p><p class="crumb">${today} 업데이트</p>`
   + order.map(k => { const L = works.filter(w => w.type === k); return L.length ? `<h2 id="${SLUG[k]}">${D.TYPES[k].ko} <small>${L.length}개</small></h2><div class="grid">${L.map(card).join('')}</div>` : ''; }).join('') + foot);
 
 // sitemap (이미지 포함)

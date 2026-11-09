@@ -463,7 +463,7 @@ function withRef(url){
 const WORKS = [
   // 분수 광장 포털 (이번 주 광장)
   {id:'eightbil', name:'80억 분의 1', type:'PLAY', zone:'광장', featured:true, url:'https://1in8b.life', desc:'지구 80억 명 중 한 명으로 무작위로 태어나 실제 통계대로 한 사람의 일생을 살아봐요.', share:'끝나면 인생 기록 카드가 나와요', score:3, note:'15세 이상 권장'},
-  {id:'soundgo', name:'soundgo', type:'CREATE', zone:'광장', featured:true, url:'https://sound.gojaehyun.com', desc:'웹캠 앞에서 손을 움직이면 허공에서 멜로디와 화음이 연주돼요.', share:'연주하는 모습이 그대로 영상', score:3, note:'카메라 권한 필요'},
+  {id:'bogidadi', name:'보기다디 Bogidadi', type:'EXPLORE', zone:'광장', featured:true, url:'https://bibiman1.itch.io/bogidadi', desc:'텅 빈 하얀 공간에서 깨어난 보기 족의 키가 후지산 아래 얼어붙은 호수, 남극의 바나나 농장 같은 세계 조각을 걸어 다니는 짧은 픽셀 탐험 RPG.', share:'이상하고 예쁜 장면 캡처', score:3, note:'무료 · 로그인 없음 · 영어/일본어 · 휴대폰은 가로 화면 · 코드는 AI(Claude)로 만든 작품'},
   {id:'mugunghwa', name:'무궁화 꽃이 피었습니다', type:'PLAY', zone:'광장', featured:true, url:'https://mugunghwa.pages.dev', desc:'다 같이 하는 무궁화 꽃 게임. 술래가 돌아볼 때 움직이면 페인트를 뒤집어써요.', share:'걸리는 순간이 숏폼', score:3},
   {id:'photobooth', name:'딸깍 포토부스', type:'CREATE', zone:'광장', featured:true, url:'https://www.switchclip.io/moments/play', desc:'사진 부스에 들어가 폰 카메라로 다른 사람과 같이 찍어요.', share:'결과물이 바로 피드용 사진', score:3, note:'카메라 권한 필요'},
   // 광장 둘레
@@ -488,8 +488,10 @@ const WORKS = [
   {id:'warlords', name:'군웅서바이버', type:'PLAY', zone:'골목', side:'west', url:'https://warlords-survivor.pages.dev/', desc:'황건적의 난 한복판에서 조운, 관우로 몰려오는 적을 버티는 삼국지 서바이버 게임.', share:'버틴 시간 기록', score:2},
   {id:'beamline', name:'Beamline', type:'PLAY', zone:'골목', side:'west', url:'https://anycallplusgmailcom.itch.io/beamline', desc:'거울을 놓아 레이저를 꺾고 금속 표적을 모두 새기는 퍼즐. 매일 모두에게 같은 문제가 하나 나와요.', share:'정답 없이 결과만 공유', score:3, note:'한국어 지원 · 매일 새 퍼즐'},
   {id:'onepush', name:'One Push', type:'PLAY', zone:'골목', side:'west', url:'https://pebblewick.itch.io/one-push', desc:'어질러진 식탁 위에 도미노를 놓고 딱 한 번 밀어요. 종은 점수를 두 배로, 스프링은 컵을 넘어 연쇄를 이어 줘요.', share:'연쇄가 이어지는 순간 녹화', score:2, note:'영어 · 시작할 때 익명 통계 동의 창이 떠요 (참여 안 해도 플레이 가능)'},
+  {id:'waggle', name:'Waggle', type:'PLAY', zone:'골목', side:'west', url:'https://talvex.itch.io/waggle', desc:'방향 하나를 누르면 모든 벌이 동시에 움직이는 육각형 퍼즐. 벽을 이용해 벌을 각자의 꽃으로 보내요. 한 칸 움직일 때마다 음이 나서 풀이가 작은 노래가 돼요.', share:'오늘의 퍼즐 최단 수 자랑', score:3, note:'부분 유료 · 처음 12판 무료(전체 3.99달러) · 영어 · 매일 새 퍼즐'},
   {id:'mangmang', name:'망망대해', type:'PLAY', zone:'골목', side:'west', url:'https://mangmang-ocean-3d.vercel.app', desc:'작은 배로 바다를 떠돌다 부딪히면 뒤집혀요. 같은 링크로 친구와 표류해요.', share:'뒤집히는 순간 녹화', score:2},
   // 동쪽 골목
+  {id:'soundgo', name:'soundgo', type:'CREATE', zone:'골목', side:'east', url:'https://sound.gojaehyun.com', desc:'웹캠 앞에서 손을 움직이면 허공에서 멜로디와 화음이 연주돼요.', share:'연주하는 모습이 그대로 영상', score:3, note:'카메라 권한 필요'},
   {id:'nolda', name:'놀다 가', type:'CREATE', zone:'골목', side:'east', url:'https://nolda-ga.last-bus.workers.dev', desc:'놀이터에서 그네 타고 모래에 그림을 그려 갤러리에 남겨요.', share:'내 낙서 전시 인증', score:2},
   {id:'museum', name:'작은 미술관', type:'CREATE', zone:'골목', side:'east', url:'https://museum3d-sundaypingpong.fly.dev', desc:'사람들이 올린 작품을 보고 내 작품도 걸 수 있는 3D 미술관.', share:'"내 그림 걸렸다" 인증', score:2},
   {id:'mellomi', name:'마시멜로미 광장', type:'CREATE', zone:'골목', side:'east', url:'https://marshmallowmee-plaza.pages.dev', desc:'내 캐릭터를 꾸며 광장에 올리고 미니게임으로 꾸밀 재료를 모아요.', share:'꾸민 캐릭터 캡처', score:2},
@@ -728,7 +730,7 @@ function alley(points){
   return curve;
 }
 const westAlley = alley([[-12,1],[-20,6],[-29,-1],[-38,7],[-47,1],[-55,6],[-61,2],[-61,12],[-56,20]]);
-const eastAlley = alley([[12,-1],[20,-7],[29,1],[38,-7],[47,0],[55,-3],[61,0],[61,-10],[56,-19]]);
+const eastAlley = alley([[12,-1],[20,-7],[29,1],[38,-7],[47,0],[55,-3],[61,0],[61,-10],[56,-19],[49,-25],[42,-28]]);
 
 /* ---------- 간판 텍스처 ---------- */
 function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }

@@ -1,0 +1,36 @@
+# 오호플 — 검색엔진·AI 답변 서비스 모두 환영해요. 요약: /llms.txt
+User-agent: *
+Allow: /
+Disallow: /tools/
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Daum
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://ohopl.vercel.app/sitemap.xml

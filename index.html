@@ -1685,7 +1685,7 @@ function setPlayerModel(kind){
 setPlayerModel(myKind);
 $('animal').addEventListener('change', e=>{ myKind=e.target.value; store.set('pg_animal',myKind); setPlayerModel(myKind); });
 
-/* 마을 주민 (예시 캐릭터) */
+/* 마을 주민 */
 const josa=(w,a,b)=>{ const c=w.charCodeAt(w.length-1)-0xAC00; return w+((c>=0 && c<11172 && c%28)?a:b); };
 const PERSONA={
   '솜이':{title:'다정한 토끼', greet:['안녕! 오늘도 마을 구경 왔구나!','반가워! 나는 솜이야. 천천히 둘러봐'], again:['어? 또 왔네! 기다리고 있었어','다시 와 줘서 고마워!'],
@@ -2089,7 +2089,7 @@ const PAGES = {
     <div><dt>도장은 언제 찍히나요?</dt><dd>작품에 들러 15초 이상 둘러보고 돌아오면 찍혀요.</dd></div>
     <div><dt>큰길로 이사하는 가게는 어떻게 정하나요?</dt><dd>모두가 남긴 반응과 후기를 보고 매주 운영자가 골라요.</dd></div>
     <div><dt>후기는 어떻게 남기나요?</dt><dd>작품에 들러 15초 이상 둘러보고 돌아오면 그 작품 카드에서 반응과 후기를 남길 수 있어요. 가입 없이 닉네임만 적으면 돼요. 이상한 후기는 신고해 주세요.</dd></div>
-    <div><dt>주민은 AI인가요?</dt><dd>아니요. 주민 대사는 미리 써 둔 예시 대사예요. 시간, 날씨, 내 행동에 맞춰 골라서 말해요.</dd></div>
+    <div><dt>주민은 AI인가요?</dt><dd>아니요. 주민 대사는 미리 써 둔 대사예요. 시간, 날씨, 내 행동에 맞춰 골라서 말해요.</dd></div>
     <div><dt>아이도 이용할 수 있나요?</dt><dd>마을은 누구나 이용할 수 있어요. 외부 작품은 각 제작자가 운영하니, 연령 권장 표시가 있는 작품은 확인하고 이용해 주세요.</dd></div>
     <div><dt>소리가 안 나요.</dt><dd>브라우저 정책 때문에 화면을 한 번 누르거나 키를 눌러야 소리가 나요. 오른쪽 위 시간·날씨 메뉴에서 효과음과 배경 소리를 켜고 끌 수 있어요.</dd></div>
     <div><dt>내 작품을 넣고 싶어요.</dt><dd><a href="#submit">작품 입점·삭제 요청</a>을 봐 주세요.</dd></div>
@@ -2748,7 +2748,7 @@ function moreChips(){
 function updateChatSub(){
   const n=chatNpc, r=rel(n);
   const fav=byId[n.fav], favName = (fav.hidden && !found.includes(fav.id)) ? '비밀' : fav.name;
-  $('chatSub').textContent = `${n.guest?'이번 계절 손님':'예시 주민'} · ${n.p.title}${r.friend?' · 친구':''}`;
+  $('chatSub').textContent = `${n.guest?'이번 계절 손님':'마을 주민'} · ${n.p.title}${r.friend?' · 친구':''}`;
   $('chatStat').textContent = `좋아하는 곳 ${favName} · 친구 ${friendsN()}/${RESIDENTS.length} · 비밀 ${knownSecrets()}/${RESIDENTS.length}`;
 }
 function openChat(n){

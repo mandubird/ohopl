@@ -195,6 +195,8 @@ button{cursor:pointer}
   background:rgba(255,255,255,.35);border:2px solid rgba(255,255,255,.7);z-index:6;touch-action:none}
 .joy .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 
+.viewbtn{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(132px + env(safe-area-inset-bottom,0px));z-index:5;border:0;border-radius:999px;padding:8px 13px;background:var(--panel);color:var(--ink);font:inherit;font-size:13px;font-weight:700;box-shadow:var(--shadow);cursor:pointer}
+@media (pointer:fine){ .viewbtn{bottom:calc(64px + env(safe-area-inset-bottom,0px))} }
 .jump{position:fixed;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));width:84px;height:84px;border-radius:50%;border:0;
   background:var(--accent);color:#fff;font-family:var(--display);font-size:20px;box-shadow:0 6px 0 color-mix(in srgb,var(--accent) 65%,#000);z-index:6;touch-action:none}
 .jump:active{transform:translateY(4px);box-shadow:0 2px 0 color-mix(in srgb,var(--accent) 65%,#000)}
@@ -335,6 +337,8 @@ button{cursor:pointer}
       <option value="bear">곰</option>
       <option value="penguin">펭귄</option>
       <option value="fox">여우</option>
+      <option value="beaver">분홍 비버</option>
+      <option value="quokka">쿼카</option>
     </select>
   </label>
   <div class="pill" title="15초 이상 둘러보고 온 가게 수"><span class="stamp-dot"></span>도장 <span class="tnum" id="stamps">0/0</span></div>
@@ -419,6 +423,7 @@ button{cursor:pointer}
 </section>
 <div class="joy" id="joy" hidden><div class="knob" id="knob"></div></div>
 <button class="jump" id="jumpBtn" type="button" hidden>점프</button>
+<button class="viewbtn" id="viewBtn" type="button" aria-label="시점 바꾸기">🎥 기본</button>
 <section class="info" id="info" hidden role="dialog" aria-labelledby="infoTitle">
   <div class="info-inner">
     <header class="info-head"><h1 id="infoTitle">오호플 안내</h1><button class="chat-x" id="infoClose" type="button" aria-label="안내 닫기">×</button></header>
@@ -1857,21 +1862,7 @@ const PERSONA={
     jump:['오호! 점프력 좋네'], reply:['오호?','그거 재밌겠는데','어디 한번 해 보자고'],
     doing:'잘하고 있지. 모르는 걸 눌러 보는 게 제일 용감한 거야', lost:'길 잃었어? 오호, 그럼 탐험 시작이네', waited:'기다렸지! 같이 구경할 사람 찾고 있었어', tired:'그럼 오늘은 하나만 보고 가. 오호 점수 매기는 건 내가 할게',
     friendYes:'오호! 탐험 동료 생겼네', friendAgain:'우린 이미 탐험 동료잖아', tea:['오호, 따뜻하다. 고마워'], bye:['또 와. 그때도 신기한 거 찾아 놓을게'],
-    secret:{test:r=>r.talks>=2, hint:'두 번만 더 말 걸어 주면 비밀 알려 줄게', lines:['사실 나 유튜브에서 오호아재로 영상 찍어.','이 마을에서 찾은 걸 직접 해 보는 거야. 잘 안 되는 것까지 다.','오늘도 하나 찾으면 오호 점수 매겨야지!']}},
-  '꼼꼼':{title:'뭐든 짓는 분홍 비버', greet:['안녕! 나는 꼼꼼이야. 뭐 지을 거 없어?','반가워! 마침 망치질 끝났어'], again:['또 왔네! 그새 하나 더 지었어','왔구나! 오늘은 어디 고칠까'],
-    idle:['빈 가게 보면 손이 근질근질해','도구 섬에 빈집 세 채, 내가 지었어','튼튼하게 지으려면 천천히 해야 해','다리? 그건 안 보이게 짓느라 진짜 힘들었어'],
-    day:['오늘은 지붕 고치기 좋은 날!'], dusk:['해 지기 전에 못 하나만 더'], night:['밤엔 망치질 안 해. 이웃이 자거든'], rain:['비 새는 지붕 없나 한 바퀴 돌아야지'], snow:['눈 쌓이면 지붕이 무거워져. 조심!'],
-    jump:['그렇게 뛰면 바닥 꺼져!'], reply:['좋아, 설계해 볼게','튼튼하게!','그거 내가 지을 수 있어'],
-    doing:'잘하고 있어. 하나씩 쌓으면 다 집이 돼', lost:'길 잃었어? 내가 놓은 돌길 따라가면 광장이야', waited:'응! 새로 지은 거 보여 주려고', tired:'그럼 오늘은 쉬어. 쉬는 것도 짓는 일의 반이야',
-    friendYes:'좋아! 친구 기념으로 의자 하나 만들어 줄게', friendAgain:'우리 이미 공사 친구잖아', tea:['고마워! 일하고 마시는 차가 제일 맛있어'], bye:['조심히 가! 다음엔 새 가게 생겨 있을걸'],
-    secret:{test:r=>r.talks>=2, hint:'두 번만 더 오면 비밀 알려 줄게', lines:['사실 나 원래 갈색이었어.','분홍 페인트 통에 빠진 뒤로 이게 더 좋아져서 그대로 살아.','이제 마을에서 날 못 알아보는 사람이 없지!']}},
-  '방긋':{title:'늘 웃는 쿼카', greet:['안녕! 헤헤, 만나서 좋다!','반가워! 나는 방긋이야. 같이 사진 찍을래?'], again:['또 왔다! 헤헤','오늘도 웃는 얼굴로 왔네!'],
-    idle:['나는 웃는 게 제일 쉬워','사진 찍을 땐 하나 둘 셋, 방긋!','세상에서 제일 행복한 동물이 나래','오늘 좋은 일 하나는 꼭 생길 거야'],
-    day:['햇살이 간지러워 헤헤'], dusk:['노을 앞에서 셀카 찍자!'], night:['밤에도 웃으면 덜 무서워'], rain:['비 와도 웃으면 무지개 떠!'], snow:['눈사람도 웃게 만들어 줄래'],
-    jump:['와 높다! 방긋!'], reply:['헤헤 좋아!','완전 좋아','웃기다 헤헤'],
-    doing:'응! 웃으면서 하고 있잖아. 그럼 잘하는 거야', lost:'길 잃어도 괜찮아. 같이 웃으면서 찾자', waited:'응! 웃을 준비 하고 기다렸어', tired:'그럼 잠깐 앉아. 내가 옆에서 웃어 줄게',
-    friendYes:'와! 친구다! 기념사진 찍자', friendAgain:'헤헤, 우리 벌써 친구잖아', tea:['따뜻해! 마시니까 더 웃음 나와'], bye:['안녕! 웃으면서 가!'],
-    secret:{test:r=>r.tea>=1, hint:'차 한 잔 사 주면 비밀 알려 줄게', lines:['사실 나도 슬플 때가 있어.','그럴 땐 포토부스 가서 웃는 연습을 해.','그러다 보면 진짜로 웃게 되더라. 너도 해 봐!']}}
+    secret:{test:r=>r.talks>=2, hint:'두 번만 더 말 걸어 주면 비밀 알려 줄게', lines:['사실 나 유튜브에서 오호아재로 영상 찍어.','이 마을에서 찾은 걸 직접 해 보는 거야. 잘 안 되는 것까지 다.','오늘도 하나 찾으면 오호 점수 매겨야지!']}}
 };
 const RESIDENTS=[
   {kind:'rabbit', name:'솜이', fav:'nolda', bag:'#ef4680'},
@@ -1881,9 +1872,7 @@ const RESIDENTS=[
   {kind:'cat', name:'나비', fav:'photobooth', bag:'#ef4680'},
   {kind:'rabbit', name:'달토', fav:'camino', bag:'#13a17d'},
   {kind:'penguin', name:'얼음', fav:'jasu', bag:'#7b5cff'},
-  {kind:'bear', name:'오호아재', fav:'eightbil', bag:'#ff7a3d', ohoajae:true},
-  {kind:'beaver', name:'꼼꼼', fav:'sajang', bag:'#7b5cff'},
-  {kind:'quokka', name:'방긋', fav:'photobooth', bag:'#ffc83d'}
+  {kind:'bear', name:'오호아재', fav:'eightbil', bag:'#ff7a3d', ohoajae:true}
 ];
 const ANIMAL_KO={cat:'고양이', dog:'강아지', rabbit:'토끼', bear:'곰', penguin:'펭귄', squirrel:'다람쥐', deer:'사슴', duck:'오리', fox:'여우', beaver:'비버', quokka:'쿼카'};
 const npcs=[];
@@ -1932,7 +1921,8 @@ const marker = mesh(new THREE.OctahedronGeometry(0.55,0), '#ffc83d', {emissive:'
 /* ---------- 입력 ---------- */
 const keys={};
 const CODE={KeyW:'f',ArrowUp:'f',KeyS:'b',ArrowDown:'b',KeyA:'l',ArrowLeft:'l',KeyD:'r',ArrowRight:'r'};
-let camYaw=0, camDist=isTouch?24:21, joyX=0, joyY=0;
+let camYaw=0, camDist=isTouch?24:21, camPitch=0.69, joyX=0, joyY=0;
+const CAM_MIN=2.6, CAM_MAX=120, PITCH_MIN=0.04, PITCH_MAX=1.45;
 let hangulNoticed = store.get('pg_hangul_notice', false);
 function jump(){ if(player.y<=0.001 && $('grid').hidden && $('react').hidden){ player.vy=9.5; jumpId++; jumps++; store.set('pg_jumps',jumps); sfxJump(); } }
 addEventListener('keydown', e=>{
@@ -1966,11 +1956,11 @@ canvas.addEventListener('pointerdown', e=>{
   drag={id:e.pointerId, x:e.clientX, y:e.clientY, sx:e.clientX, sy:e.clientY, moved:0}; canvas.classList.add('dragging'); });
 canvas.addEventListener('pointermove', e=>{
   if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pinch && ptrs.size>=2){ camDist=Math.max(9, Math.min(34, pinch.dist*pinch.d/ptrDist())); return; }
+  if(pinch && ptrs.size>=2){ camDist=Math.max(CAM_MIN, Math.min(CAM_MAX, pinch.dist*pinch.d/ptrDist())); return; }
   if(!drag||drag.id!==e.pointerId) return;
-  const dx=e.clientX-drag.x; drag.x=e.clientX; drag.y=e.clientY;
+  const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY;
   drag.moved=Math.max(drag.moved, Math.hypot(e.clientX-drag.sx, e.clientY-drag.sy));
-  camYaw -= dx*0.006;
+  camYaw -= dx*0.006; camPitch=Math.max(PITCH_MIN, Math.min(PITCH_MAX, camPitch + dy*0.005));
 });
 canvas.addEventListener('pointerup', e=>{
   ptrs.delete(e.pointerId);
@@ -1979,7 +1969,10 @@ canvas.addEventListener('pointerup', e=>{
   drag=null; canvas.classList.remove('dragging');
 });
 canvas.addEventListener('pointercancel', e=>{ ptrs.delete(e.pointerId); if(ptrs.size<2) pinch=null; drag=null; canvas.classList.remove('dragging'); });
-canvas.addEventListener('wheel', e=>{ camDist=Math.max(9, Math.min(34, camDist + e.deltaY*0.02)); e.preventDefault(); }, {passive:false});
+canvas.addEventListener('wheel', e=>{ camDist=Math.max(CAM_MIN, Math.min(CAM_MAX, camDist*(1+e.deltaY*0.0012))); e.preventDefault(); }, {passive:false});
+// 시점 버튼: 기본 → 가까이 → 낮게 → 높이 → 마을 전체
+const VIEWS=[{n:'기본',d:isTouch?24:21,p:0.69},{n:'가까이',d:4.2,p:0.32},{n:'낮게',d:12,p:0.08},{n:'높이',d:30,p:1.3},{n:'마을 전체',d:115,p:0.9}]; let viewIdx=0;
+$('viewBtn').addEventListener('click', ()=>{ viewIdx=(viewIdx+1)%VIEWS.length; const v=VIEWS[viewIdx]; camDist=v.d; camPitch=v.p; $('viewBtn').textContent='🎥 '+v.n; });
 
 const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
 function clickAt(cx,cy){
@@ -2489,6 +2482,7 @@ function updateEnv(dt,t){
   windowMat.emissive.set('#3a2f10').lerp(cC.set('#f0b04a'), glow);
   plazaLights.forEach(L=>{ L.intensity = glow*1.6; });
   stars.material.opacity = Math.max(0, W.night - ov*0.8);
+  updateSky(dt);
 }
 // 별
 const stars = (()=>{ const N=700, pos=new Float32Array(N*3);
@@ -2497,6 +2491,40 @@ const stars = (()=>{ const N=700, pos=new Float32Array(N*3);
   const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos,3));
   const m=new THREE.Points(g, new THREE.PointsMaterial({color:'#ffffff', size:2.2, sizeAttenuation:false, transparent:true, opacity:0, fog:false, depthWrite:false}));
   m.frustumCulled=false; scene.add(m); return m; })();
+
+// 별자리: 밝은 별 + 옅은 선 (북두칠성, 카시오페이아, 오리온)
+const CONSTS=[
+  {az:0.5, el:0.75, s:30, pts:[[0,0],[1.1,0.15],[2.1,0.05],[3.0,-0.3],[3.3,-1.3],[4.5,-1.5],[4.7,-0.5]], ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
+  {az:2.6, el:0.95, s:28, pts:[[0,0],[0.9,-0.9],[1.9,-0.2],[2.9,-1.0],[3.8,-0.1]], ln:[[0,1],[1,2],[2,3],[3,4]]},
+  {az:4.4, el:0.55, s:30, pts:[[0,0],[2.2,0.1],[0.8,-1.6],[1.1,-1.75],[1.4,-1.9],[-0.1,-3.6],[2.3,-3.5]], ln:[[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]}
+];
+const constGroup=new THREE.Group(); scene.add(constGroup);
+const constLineMat=new THREE.LineBasicMaterial({color:'#9fb8ff', transparent:true, opacity:0, fog:false, depthWrite:false});
+const constStarMat=new THREE.PointsMaterial({color:'#fff6d8', size:4.2, sizeAttenuation:false, transparent:true, opacity:0, fog:false, depthWrite:false});
+CONSTS.forEach(C=>{ const R=410, c=new THREE.Vector3(Math.cos(C.az)*Math.cos(C.el), Math.sin(C.el), Math.sin(C.az)*Math.cos(C.el)).multiplyScalar(R);
+  const up=new THREE.Vector3(0,1,0), right=new THREE.Vector3().crossVectors(c,up).normalize(), u2=new THREE.Vector3().crossVectors(right,c).normalize();
+  const P=C.pts.map(([a,b])=>c.clone().addScaledVector(right,a*C.s/3).addScaledVector(u2,b*C.s/3));
+  const pg=new THREE.BufferGeometry().setFromPoints(P); const pts=new THREE.Points(pg,constStarMat); pts.frustumCulled=false; constGroup.add(pts);
+  const lg=new THREE.BufferGeometry().setFromPoints(C.ln.flatMap(([i,j])=>[P[i],P[j]])); const ls=new THREE.LineSegments(lg,constLineMat); ls.frustumCulled=false; constGroup.add(ls); });
+// 별똥별: 밤하늘에 가끔 한 줄기
+const meteors=[0,1].map(()=>{ const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6),3));
+  g.setAttribute('color', new THREE.BufferAttribute(new Float32Array([1,1,1, 0.2,0.3,0.6]),3));
+  const l=new THREE.Line(g, new THREE.LineBasicMaterial({vertexColors:true, transparent:true, opacity:0, fog:false, depthWrite:false, blending:THREE.AdditiveBlending}));
+  l.frustumCulled=false; l.visible=false; scene.add(l); return {l, t:0, life:0, p:new THREE.Vector3(), v:new THREE.Vector3()}; });
+let nextMeteor=3;
+function updateSky(dt){
+  const night=Math.max(0, W.night - ov*0.8);
+  constLineMat.opacity=night*0.32; constStarMat.opacity=night; constGroup.visible=night>0.02;
+  nextMeteor-=dt;
+  if(night>0.5 && nextMeteor<=0){ nextMeteor=3+Math.random()*7; const M=meteors.find(m=>!m.l.visible);
+    if(M){ const az=Math.random()*Math.PI*2, el=0.5+Math.random()*0.6, R=380; M.p.set(Math.cos(az)*Math.cos(el)*R, Math.sin(el)*R, Math.sin(az)*Math.cos(el)*R);
+      const side=new THREE.Vector3(-Math.sin(az),0,Math.cos(az)).multiplyScalar(Math.random()<0.5?1:-1); M.v.copy(side).multiplyScalar(260).add(new THREE.Vector3(0,-120,0));
+      M.t=0; M.life=0.9+Math.random()*0.5; M.l.visible=true; } }
+  for(const M of meteors){ if(!M.l.visible) continue; M.t+=dt; const k=M.t/M.life; if(k>=1){ M.l.visible=false; continue; }
+    const head=M.p.clone().addScaledVector(M.v,M.t), tail=head.clone().addScaledVector(M.v,-0.18);
+    const a=M.l.geometry.attributes.position; a.setXYZ(0,head.x,head.y,head.z); a.setXYZ(1,tail.x,tail.y,tail.z); a.needsUpdate=true;
+    M.l.material.opacity=Math.sin(k*Math.PI)*night; }
+}
 
 // 비와 눈
 const RAIN_N=1500, rainData=new Float32Array(RAIN_N*3), rainPos=new Float32Array(RAIN_N*6);
@@ -3017,10 +3045,12 @@ function frame(now){
   for(const tr of treasures){ if(!found.includes(tr.id) && Math.hypot(player.x-tr.x, player.z-tr.z)<7) discover(tr.id); }
 
   // 카메라
-  const h = camDist*0.82;
-  camPos.set(player.x+Math.sin(camYaw)*camDist, h, player.z+Math.cos(camYaw)*camDist);
+  const R=camDist*1.29, hz=R*Math.cos(camPitch), h=Math.max(0.7, R*Math.sin(camPitch)+player.y*0.4);
+  camPos.set(player.x+Math.sin(camYaw)*hz, h, player.z+Math.cos(camYaw)*hz);
   camera.position.lerp(camPos, Math.min(1,dt*6));
-  camLook.lerp(new THREE.Vector3(player.x-Math.sin(camYaw)*4,1.2+player.y*0.3,player.z-Math.cos(camYaw)*4), Math.min(1,dt*8));
+  const ahead=Math.min(4, camDist*0.18), lookY=1.0+player.y*0.5+(camPitch<0.25?(0.25-camPitch)*4:0);
+  camLook.lerp(new THREE.Vector3(player.x-Math.sin(camYaw)*ahead, lookY, player.z-Math.cos(camYaw)*ahead), Math.min(1,dt*8));
+  scene.fog.near=120+Math.max(0,camDist-34)*2.2; scene.fog.far=300+Math.max(0,camDist-34)*3;
   camera.lookAt(camLook);
 
   if(++monitorTick%12===0 && Math.hypot(player.x-TOOL_C.x, player.z-TOOL_C.z)<70){ renderer.setRenderTarget(monitorRT); renderer.render(scene,monitorCam); renderer.setRenderTarget(null); }

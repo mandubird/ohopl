@@ -116,8 +116,10 @@ button{cursor:pointer}
 
 /* 작품 카드 */
 .card{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));
-  width:min(440px,calc(100% - 24px));max-height:calc(100% - 100px);overflow:auto;background:var(--panel);border-radius:22px;box-shadow:var(--shadow);z-index:30}
-.card-band{height:84px;border-radius:22px 22px 0 0;background:var(--c);position:relative;overflow:hidden}
+  width:min(440px,calc(100% - 24px));max-height:calc(100% - 100px);max-height:calc(100dvh - 100px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;overscroll-behavior:contain;background:var(--panel);border-radius:22px;box-shadow:var(--shadow);z-index:30}
+.card-band{height:84px;border-radius:22px 22px 0 0;background:var(--c);position:sticky;top:0;z-index:2;overflow:hidden}
+#cardTitle{order:0} #cardDesc{order:1} #cardActions{order:2} #cardKv{order:3} #cardMove{order:4} #cardSocial{order:5}
+#envShort,.info-q,.brk{display:none}
 .card-band::after{content:attr(data-glyph);position:absolute;right:14px;bottom:-18px;font-family:var(--display);font-size:96px;color:rgba(255,255,255,.35);line-height:1}
 .card-band .badges{position:absolute;left:16px;top:14px;display:flex;gap:6px;flex-wrap:wrap}
 .badge{background:rgba(255,255,255,.92);color:#1c2140;border-radius:999px;font-size:12px;font-weight:700;padding:4px 10px}
@@ -292,6 +294,24 @@ button{cursor:pointer}
   .brand span{display:none}
   .brand b{font-size:19px}
   .pill{padding:8px 11px;font-size:13px}
+  /* 모바일 상단 2줄: [오호플 · 나는 고양이 · 큰길 보기] / [날씨 · 코인 · 도장 ……… ?] */
+  .top{gap:8px 6px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+  .top .spacer{display:none}
+  .brand{order:0} label.pill[for="animal"]{order:1;margin:0 auto} #toggleView{order:2}
+  .brk{display:block;order:3;flex-basis:100%;height:0}
+  #envBtn{order:4} #coinPill{order:5} .top > .pill[title^="15초"]{order:6} #infoBtn{order:7;margin-left:auto}
+  #envBtn,#coinPill,.top > .pill[title^="15초"],#infoBtn{padding:6px 10px;font-size:12px;box-shadow:0 2px 8px rgba(20,24,60,.12)}
+  #envLabel,.info-txt{display:none} #envShort,.info-q{display:inline}
+  #infoBtn{width:30px;height:30px;padding:0;justify-content:center;font-weight:800;font-size:15px}
+  .envpop{top:calc(96px + env(safe-area-inset-top,0px))}
+  /* 카드: 띠 얇게, 위쪽 여백 줄여서 한 화면에 */
+  .card{bottom:calc(10px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 104px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+  .card-band{height:54px}
+  .card-band::after{font-size:64px;bottom:-12px}
+  .card-band .badges{top:12px}
+  .card-body{padding:12px 16px 14px;gap:10px}
+  .card h2{font-size:22px}
+  .kv{padding:10px 12px}
   .hint{display:none}
   .tiles{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));grid-auto-rows:96px}
   .tile.big .glyph{font-size:90px}
@@ -318,9 +338,10 @@ button{cursor:pointer}
   </label>
   <div class="pill" title="15초 이상 둘러보고 온 가게 수"><span class="stamp-dot"></span>도장 <span class="tnum" id="stamps">0/0</span></div>
   <div class="pill" id="coinPill" title="모은 코인"><span class="coin-dot"></span>코인 <span class="tnum" id="coins">0</span></div>
-  <button class="pill" id="envBtn" type="button" aria-expanded="false" aria-controls="envPop"><span id="envLabel">낮 · 맑음</span></button>
-  <button class="pill" id="infoBtn" type="button">안내</button>
   <button class="pill primary" id="toggleView" type="button">큰길 보기</button>
+  <div class="brk" aria-hidden="true"></div>
+  <button class="pill" id="envBtn" type="button" aria-expanded="false" aria-controls="envPop"><span id="envLabel">낮 · 맑음</span><span id="envShort">☀️</span></button>
+  <button class="pill" id="infoBtn" type="button" aria-label="안내"><span class="info-txt">안내</span><span class="info-q">?</span></button>
 </header>
 
 <div class="hint" id="hint"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기(한/영 상관없음) · <kbd>스페이스</kbd> 점프 · 화면 끌어서 둘러보기 · 가게나 주민 앞에서 <kbd>E</kbd></div>
@@ -2435,6 +2456,8 @@ function updateEnvLabel(){
   let lab = ph + ' · ' + WEATHER_KO[env.weather] + (typeof seasonNow!=='undefined' && SEASON_KO[seasonNow] ? ' · ' + SEASON_KO[seasonNow] : '');
   if(env.time==='auto'){ const d=new Date(); lab = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ' + lab; }
   $('envLabel').textContent = lab;
+  const ic={clear: ph==='밤'?'🌙':'☀️', rain:'🌧️', snow:'❄️'}[env.weather]||'☀️'; const d2=new Date();
+  $('envShort').textContent = ic+' '+(env.time==='auto' ? String(d2.getHours()).padStart(2,'0')+':'+String(d2.getMinutes()).padStart(2,'0') : ph);
 }
 function syncEnvUI(){
   document.querySelectorAll('.seg').forEach(seg=>{ const key=seg.dataset.key;

@@ -1509,8 +1509,8 @@ const bridgeTiles=[], bridgePosts=[];
     const m=new THREE.Mesh(geo, new THREE.MeshPhongMaterial({color:'#9fe8ff', emissive:'#2a9fc8', transparent:true, opacity:0, shininess:80, depthWrite:false}));
     m.position.set(x,0.1,0); m.visible=false; scene.add(m); bridgeTiles.push({m, a:0, seen:false});
   }
-  // 양옆 빛 기둥: 다리를 한 번 다 건너야 켜져요
-  for(let x=BRIDGE.x0+3; x<BRIDGE.x1; x+=5) for(const sz of [-1,1]){ const p=mesh(new THREE.CylinderGeometry(0.12,0.12,1.1,6),'#9fe8ff',{emissive:'#2a9fc8'}); p.position.set(x,0.55,sz*(BRIDGE.hw+0.15)); p.castShadow=false; p.visible=false; scene.add(p); bridgePosts.push(p); }
+  // 양옆 빛 기둥: 발판과 함께 나타났다 사라져요
+  for(let x=BRIDGE.x0+3; x<BRIDGE.x1; x+=5) for(const sz of [-1,1]){ const p=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,1.1,6), new THREE.MeshPhongMaterial({color:'#9fe8ff', emissive:'#2a9fc8', transparent:true, opacity:0, depthWrite:false})); p.position.set(x,0.55,sz*(BRIDGE.hw+0.15)); p.visible=false; scene.add(p); bridgePosts.push(p); }
 })();
 let bridgeHintShown=false;
 function updateBridge(dt){
@@ -1518,7 +1518,8 @@ function updateBridge(dt){
   for(const T of bridgeTiles){ const d=Math.hypot(T.m.position.x-player.x, T.m.position.z-player.z);
     const target = onB && d<4 ? 0.9 : T.seen ? 0.14 : 0; if(onB && d<2.4) T.seen=true;
     T.a += (target-T.a)*Math.min(1,dt*5); T.m.material.opacity=T.a; T.m.visible=T.a>0.01; }
-  if(!bridgePosts[0].visible && player.x>BRIDGE.x1){ bridgePosts.forEach(p=>p.visible=true); }
+  // 기둥도 발판처럼: 가까운 칸이 보일 때만 같이 나타나요
+  for(const P of bridgePosts){ let a=0; for(const T of bridgeTiles){ if(Math.abs(T.m.position.x-P.position.x)<1.2) a=Math.max(a,T.a); } P.material.opacity=a; P.visible=a>0.01; }
   if(onB && player.x>BRIDGE.x0+1 && !bridgeHintShown){ bridgeHintShown=true; toast('발밑에 다리가 나타나요. 그대로 걸어가 보세요'); }
   if(!reduce && ideaFruits.length){ const tt=performance.now()/1000; ideaFruits.forEach((f,i)=>f.scale.setScalar(1+Math.sin(tt*2+i)*0.12));
     if(ideaSparks){ const a=ideaSparks.geometry.attributes.position; for(let i=0;i<a.count;i++){ let y=a.getY(i)+dt*0.5; if(y>10) y=2; a.setY(i,y); } a.needsUpdate=true; } }

@@ -6,6 +6,10 @@
 - 대표 주소: https://ohopl.com (www와 ohopl.vercel.app도 열림)
 - 작품으로 가는 링크 꼬리표: index.html의 `SITE_REF`
 
+## 발견 노트(블로그)
+
+`content/posts.mjs`에 글을 추가해요. `date`가 오늘(한국 시간) 이전인 글만 공개되고, 매일 0시 5분에 GitHub Actions(daily-publish)가 그날 글을 자동으로 올려요.
+
 ## 검색 노출(SEO·AEO) 페이지 만들기
 
 작품 데이터(index.html의 WORKS 등)를 바꾼 뒤에는 아래 한 줄을 실행하고 같이 커밋해요.

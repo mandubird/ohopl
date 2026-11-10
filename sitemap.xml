@@ -2,6 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url><loc>https://ohopl.com/</loc><lastmod>2026-11-10</lastmod><image:image><image:loc>https://ohopl.com/og-image.png</image:loc><image:title>오호플 3D 창작 마을</image:title></image:image></url>
   <url><loc>https://ohopl.com/works/</loc><lastmod>2026-11-10</lastmod></url>
+  <url><loc>https://ohopl.com/posts/</loc><lastmod>2026-11-10</lastmod></url>
+  <url><loc>https://ohopl.com/posts/free-web-games-no-install/</loc><lastmod>2026-11-10</lastmod></url>
   <url><loc>https://ohopl.com/gallery/</loc><lastmod>2026-11-10</lastmod></url>
   <url><loc>https://ohopl.com/w/eightbil/</loc><lastmod>2026-11-10</lastmod><image:image><image:loc>https://ohopl.com/thumbs/eightbil.webp</image:loc><image:title>80억 분의 1 첫 화면</image:title></image:image></url>
   <url><loc>https://ohopl.com/w/bogidadi/</loc><lastmod>2026-11-10</lastmod></url>

@@ -1,0 +1,24 @@
+# 매일 0시 5분(한국 시간)에 그날 날짜가 된 발견 노트를 공개해요.
+# 생성기를 돌려 바뀐 게 있으면 커밋 → Vercel이 자동 배포해요.
+name: daily-publish
+on:
+  schedule:
+    - cron: '5 15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tools/build-seo.mjs
+      - name: commit if changed
+        run: |
+          git add -A
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git -c user.name=mandubird -c user.email=mandubird@users.noreply.github.com commit -m "발견 노트 자동 발행 $(TZ=Asia/Seoul date +%F)"
+          git push

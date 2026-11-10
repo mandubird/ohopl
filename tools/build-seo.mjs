@@ -8,7 +8,7 @@
 //   /llms.txt           AI 답변 서비스용 요약
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const BASE = (process.argv[2] || process.env.SITE_URL || 'https://ohopl.vercel.app').replace(/\/$/, '');
+const BASE = (process.argv[2] || process.env.SITE_URL || 'https://ohopl.com').replace(/\/$/, '');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const a = html.indexOf('const TYPES = {'), b = html.indexOf('const VACANTS');
 const g = html.indexOf('const GALLERY = {'), ge = html.indexOf('};', g) + 2;

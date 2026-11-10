@@ -33,4 +33,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://ohopl.vercel.app/sitemap.xml
+Sitemap: https://ohopl.com/sitemap.xml

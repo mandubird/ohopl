@@ -34,3 +34,4 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://ohopl.com/sitemap.xml
+Sitemap: https://ohopl.com/rss.xml

@@ -57,7 +57,7 @@ const head = (title, desc, url, img, ld) => `<!doctype html><html lang="ko"><hea
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${url}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="오호플"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${img}"><meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${img}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="오호플 발견 노트" href="/rss.xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;700&display=swap">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g,'\\u003c')}</script>
 <style>${CSS}</style></head><body><div class="wrap">
@@ -141,6 +141,13 @@ const urls = [{loc:BASE+'/', img:BASE+'/og-image.png', t:'오호플 3D 창작 �
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`
   + urls.map(u => `  <url><loc>${u.loc}</loc><lastmod>${u.last || today}</lastmod>${u.img ? `<image:image><image:loc>${u.img}</image:loc><image:title>${esc(u.t)}</image:title></image:image>` : ''}</url>`).join('\n') + '\n</urlset>\n');
 
+// RSS (네이버 서치어드바이저 RSS 제출용)
+{
+  const rfc = d => new Date(d + 'T09:00:00+09:00').toUTCString();
+  fs.writeFileSync(path.join(ROOT, 'rss.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>오호플 발견 노트</title><link>${BASE}/posts/</link><description>오호플이 고른 무료 웹게임, 설치 없는 웹 도구, 신기한 사이트 추천</description><language>ko</language><atom:link href="${BASE}/rss.xml" rel="self" type="application/rss+xml"/>`
+    + posts.map(p => `<item><title>${esc(p.title)}</title><link>${postUrl(p)}</link><guid>${postUrl(p)}</guid><pubDate>${rfc(p.date)}</pubDate><description>${esc(p.desc)}</description></item>`).join('') + '</channel></rss>\n');
+}
+
 fs.writeFileSync(path.join(ROOT, 'robots.txt'), `# 오호플 — 검색엔진·AI 답변 서비스 모두 환영해요. 요약: /llms.txt
 User-agent: *
 Allow: /
@@ -176,7 +183,7 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: ${BASE}/sitemap.xml
+Sitemap: ${BASE}/sitemap.xml\nSitemap: ${BASE}/rss.xml
 `);
 
 fs.writeFileSync(path.join(ROOT, 'llms.txt'), `# 오호플 (OHOPL · 오늘의 호기심 플레이)

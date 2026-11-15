@@ -2016,6 +2016,7 @@ function reactionTotal(id){ const r=reactions[id]; if(!r) return 0; return Objec
 /* ---------- 모두의 반응과 후기 (Supabase) ---------- */
 const SB={url:'https://qvfhqesqjymofstbfkfu.supabase.co', key:'sb_publishable_-VQtmA76QQk70fU5pF5Jvg_uv5yhFJO'};
 const DEVICE=(()=>{ let d=store.get('pg_device',''); if(typeof d!=='string' || d.length<8){ d='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); store.set('pg_device',d); } return d; })();
+let commentBusy=false, lastCommentAt=0;
 async function sb(path, body, minimal){
   const h={apikey:SB.key, 'Content-Type':'application/json'}; if(minimal) h.Prefer='return=minimal';
   const r=await fetch(SB.url+'/rest/v1/'+path, {method: body?'POST':'GET', headers:h, body: body?JSON.stringify(body):undefined});
@@ -2060,10 +2061,12 @@ function renderSocial(id){
     f.addEventListener('submit', async e=>{ e.preventDefault();
       const nk=nick.value.trim(), body=ta.value.trim();
       if(!nk){ toast('닉네임을 적어 주세요'); return; } if(body.length<2){ toast('두 글자 이상 적어 주세요'); return; }
-      b.disabled=true; store.set('pg_nick', nk);
+      if(commentBusy) return; if(Date.now()-lastCommentAt<30000){ toast('방금 후기를 남겼어요. 다음 후기는 잠시 뒤에 남길 수 있어요'); return; }
+      commentBusy=true; b.disabled=true; store.set('pg_nick', nk);
       try{ await sb('ohopl_comments',{work_id:id, nickname:nk, body, device:DEVICE}, true); track('comment', id);
+        lastCommentAt=Date.now(); commentBusy=false; ta.value='';
         social.ccount[id]=(social.ccount[id]||0)+1; toast('후기를 남겼어요. 고마워요!'); renderSocial(id);
-      }catch(err){ const m=err.message||'';
+      }catch(err){ commentBusy=false; const m=String(err.message||'').toLowerCase();
         toast(m.includes('no_links') ? '주소(링크)는 남길 수 없어요' : m.includes('too_fast') ? '조금 있다가 다시 남겨 주세요' : m.includes('too_many') ? '오늘은 더 남길 수 없어요. 내일 또 와 주세요' : '지금은 남길 수 없어요. 잠시 뒤 다시 해 주세요');
         b.disabled=false; }
     });

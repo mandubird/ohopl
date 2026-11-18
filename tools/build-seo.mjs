@@ -62,8 +62,8 @@ const head = (title, desc, url, img, ld) => `<!doctype html><html lang="ko"><hea
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;700&display=swap">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g,'\\u003c')}</script>
 <style>${CSS}</style></head><body><div class="wrap">
-<header class="top"><a class="logo" href="/">오호플<small>오늘의 호기심 플레이</small></a><nav class="btns" style="margin:0"><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="/works/">작품 전체</a></nav></header>`;
-const foot = `<footer><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p>문의 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
+<header class="top"><a class="logo" href="/">오호플<small>오늘의 호기심 플레이</small></a><nav class="btns" style="margin:0"><a class="btn ghost" href="/about/">소개</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="/works/">작품 전체</a></nav></header>`;
+const foot = `<footer><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p><a href="/about/">오호플이란?</a> · 문의 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
 const card = w => { const T = D.TYPES[w.type], t = thumb(w);
   return `<a class="item" href="/w/${w.id}/">${t ? `<img src="${t}" alt="${esc(w.name)} 첫 화면" loading="lazy" width="640" height="480">` : `<div class="ph" style="background:${COLORS[w.type]}">${esc(w.name.replace(/[^가-힣A-Za-z0-9]/g,'').slice(0,1))}</div>`}<b>${esc(w.name)}</b><span>${T.ko} · ${esc(w.desc.slice(0, 46))}${w.desc.length > 46 ? '…' : ''}</span></a>`; };
 
@@ -138,7 +138,36 @@ ${near.length ? `<h2>다른 발견 노트</h2><ul>${near.map(x => `<li><a href="
 }
 
 
-const urls = [{loc:BASE+'/', img:BASE+'/og-image.png', t:'오호플 3D 창작 마을'}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
+
+// 오호플 소개 페이지 (/about/): "오호플이 뭐야?"에 바로 답하는 정의 페이지
+{
+  const url = BASE + '/about/';
+  const n = works.length, byType = k => works.filter(w => w.type === k).length;
+  const faq = [
+    ['오호플이 뭐예요?', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 게임, 웹 도구, 신기한 웹사이트를 운영자가 직접 써 보고 골라 3D 마을에 모아 둔 큐레이션 사이트예요. ${n}개 작품을 설치 없이 브라우저에서 바로 열 수 있어요.`],
+    ['오호플은 무료인가요?', '네. 오호플 마을과 작품 소개는 무료이고 회원가입도 없어요. 작품마다 유료 기능이 있으면 작품 소개의 알아둘 점에 적어 두었어요.'],
+    ['오호플에는 어떤 작품이 있나요?', `놀이(웹게임) ${byType('PLAY')}개, 도구 ${byType('USE')}개, 만들기 ${byType('CREATE')}개, 배우기 ${byType('LEARN')}개, 탐험(3D·인터랙티브) ${byType('EXPLORE')}개가 있어요. 놀이는 놀이 섬, 도구는 도구 섬, 만들기·배우기는 서쪽 골목, 탐험은 동쪽 골목에 모여 있어요.`],
+    ['오호플은 누가 운영하나요?', '1인 크리에이터 블루루반이 운영해요. 유튜브 오호아재 채널에서 작품을 직접 해 보는 영상도 올려요. 문의는 eunhaebleu@naver.com 이에요.'],
+    ['내 작품도 오호플에 소개될 수 있나요?', '네. 설치 없이 브라우저에서 바로 열리는 작품이면 eunhaebleu@naver.com 으로 주소를 보내 주세요. 직접 써 보고 골라 소개해요. 소개를 원하지 않으면 바로 내려요.'],
+  ];
+  const ld = {'@context':'https://schema.org','@graph':[
+    {'@type':'AboutPage','@id':url,'url':url,'name':'오호플이란? — 오늘의 호기심 플레이','inLanguage':'ko','isPartOf':{'@id':BASE+'/#website'},'about':{'@id':BASE+'/#org'},'dateModified':today},
+    {'@type':'FAQPage','mainEntity':faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))}]};
+  const body = `<main><h1>오호플이란?</h1>
+<p class="lead"><b>오호플(OHOPL · 오늘의 호기심 플레이)</b>은 AI로 만든 게임, 웹 도구, 신기한 웹사이트를 운영자가 직접 써 보고 골라 소개하는 <b>3D 창작 마을</b>이에요. 동물 캐릭터로 마을을 걸으며 가게 문을 열면 작품이 열려요.</p>
+<h2>마을 구성</h2><ul>
+<li><b>분수 광장</b> — 이번 주 가장 반응 좋은 작품 4개가 포털로 열려 있어요.</li>
+<li><b>큰길</b> — 반응이 쌓여 이사 온 인기 가게예요.</li>
+<li><b>놀이 섬</b> — 웹게임이 모인 섬. 서쪽 골목 끝 무지개 다리를 건너면 회전목마가 돌아요.</li>
+<li><b>도구 섬</b> — PDF·한글 파일·여행 준비처럼 쓸모 있는 웹 도구가 모인 섬이에요.</li>
+<li><b>서쪽 골목</b> — 만들기·배우기, <b>동쪽 골목</b> — 3D·인터랙티브 탐험 작품이에요.</li>
+<li><b>성소 언덕</b> — 온라인 교회·성당·절이 있는 조용한 곳이에요.</li></ul>
+<p class="btns"><a class="btn" href="/">3D 마을 들어가기</a><a class="btn ghost" href="/works/">작품 전체 목록</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener" target="_blank">유튜브 오호아재</a></p>
+<h2>자주 묻는 질문</h2><div class="faq">${faq.map(([q, a]) => `<details open><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></main>`;
+  fs.mkdirSync(path.join(ROOT, 'about'), {recursive: true});
+  fs.writeFileSync(path.join(ROOT, 'about', 'index.html'), head('오호플이란? — AI로 만든 게임·도구를 골라 모은 3D 창작 마을', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 웹게임·웹 도구·신기한 사이트 ${n}개를 직접 써 보고 골라 모은 3D 마을이에요. 무료, 설치 없이 브라우저에서.`, url, BASE + '/og-image.png', ld) + body + foot);
+}
+const urls = [{loc:BASE+'/', img:BASE+'/og-image.png', t:'오호플 3D 창작 마을'}, {loc:BASE+'/about/'}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`
   + urls.map(u => `  <url><loc>${u.loc}</loc><lastmod>${u.last || today}</lastmod>${u.img ? `<image:image><image:loc>${u.img}</image:loc><image:title>${esc(u.t)}</image:title></image:image>` : ''}</url>`).join('\n') + '\n</urlset>\n');
 
@@ -234,6 +263,8 @@ fs.writeFileSync(path.join(ROOT, 'llms.txt'), `# 오호플 (OHOPL · 오늘의 �
 > AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 동물 캐릭터로 마을을 걸으며 가게(작품)를 발견해요. 작품은 모두 웹에서 열리고, 대부분 설치·가입 없이 바로 쓸 수 있어요(유료·로그인 여부는 작품마다 '알아둘 점'에 적어요). 운영: 블루루반 · 문의 eunhaebleu@naver.com
 
 - 사이트: ${BASE}/
+- 오호플이란?(소개·자주 묻는 질문): ${BASE}/about/
+- 운영: 블루루반 · 유튜브 오호아재 https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ
 - 전체 목록: ${BASE}/works/
 - 발견 노트(주제별 추천 글): ${BASE}/posts/
 - 분류: 놀이(게임), 도구(일·생활), 만들기(창작), 배우기, 탐험(3D·인터랙티브)
@@ -258,7 +289,7 @@ console.log(`pages ${works.length}, base ${BASE}`);
 {
   const siteLd = {'@context':'https://schema.org','@graph':[
     {'@type':'WebSite','@id':BASE+'/#website','url':BASE+'/','name':'오호플','alternateName':['OHOPL','오늘의 호기심 플레이'],'inLanguage':'ko','description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','publisher':{'@id':BASE+'/#org'}},
-    {'@type':'Organization','@id':BASE+'/#org','name':'오호플','legalName':'블루루반','url':BASE+'/','logo':BASE+'/icon-512.png','email':'eunhaebleu@naver.com'},
+    {'@type':'Organization','@id':BASE+'/#org','name':'오호플','legalName':'블루루반','url':BASE+'/','logo':BASE+'/icon-512.png','email':'eunhaebleu@naver.com','alternateName':['OHOPL','오늘의 호기심 플레이'],'description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','sameAs':['https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ']},
     {'@type':'ItemList','name':'오호플이 고른 AI 창작 작품','numberOfItems':works.length,'itemListElement':works.map((w,i)=>({'@type':'ListItem','position':i+1,'url':pageUrl(w),'name':w.name}))}]};
   let idx = fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
   idx = idx.replace(/<!--seo-ld-->[\s\S]*?<!--\/seo-ld-->\n?/,'').replace(/<!--seo-list-->[\s\S]*?<!--\/seo-list-->\n?/,'');

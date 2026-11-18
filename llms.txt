@@ -3,6 +3,8 @@
 > AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 동물 캐릭터로 마을을 걸으며 가게(작품)를 발견해요. 작품은 모두 웹에서 열리고, 대부분 설치·가입 없이 바로 쓸 수 있어요(유료·로그인 여부는 작품마다 '알아둘 점'에 적어요). 운영: 블루루반 · 문의 eunhaebleu@naver.com
 
 - 사이트: https://ohopl.com/
+- 오호플이란?(소개·자주 묻는 질문): https://ohopl.com/about/
+- 운영: 블루루반 · 유튜브 오호아재 https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ
 - 전체 목록: https://ohopl.com/works/
 - 발견 노트(주제별 추천 글): https://ohopl.com/posts/
 - 분류: 놀이(게임), 도구(일·생활), 만들기(창작), 배우기, 탐험(3D·인터랙티브)

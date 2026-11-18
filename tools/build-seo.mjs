@@ -31,7 +31,8 @@ const postsFor = id => posts.filter(p => (p.sections || []).some(s => (s.picks |
 const kdate = d => { const [y, m, dd] = d.split('-').map(Number); return `${y}년 ${m}월 ${dd}일`; };
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
-const CSS = `:root{--bg:#fbf8f2;--fg:#1d2033;--muted:#5d6278;--card:#ffffff;--line:#e7e1d6;--accent:#f26a2e}
+const CSS = `.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:18px 0}.shots figure{margin:0}.shots img{width:100%;height:auto;border-radius:14px;display:block}.shots figcaption{font-size:13px;color:var(--muted);margin-top:6px}
+:root{--bg:#fbf8f2;--fg:#1d2033;--muted:#5d6278;--card:#ffffff;--line:#e7e1d6;--accent:#f26a2e}
 @media (prefers-color-scheme:dark){:root{--bg:#141626;--fg:#eef0f8;--muted:#a7acc2;--card:#1d2036;--line:#2c3050;--accent:#ff8a52}}
 *{box-sizing:border-box}body{word-break:keep-all;overflow-wrap:anywhere;margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 'IBM Plex Sans KR',system-ui,sans-serif}
 a{color:inherit}.wrap{max-width:860px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-left)) 48px}
@@ -139,6 +140,14 @@ ${near.length ? `<h2>다른 발견 노트</h2><ul>${near.map(x => `<li><a href="
 
 
 
+
+const SHOTS = [
+  ['village-aerial','오호플 3D 창작 마을 전체 모습 — 분수 광장과 골목, 놀이 섬으로 가는 무지개 다리'],
+  ['plaza','오호플 분수 광장 — 이번 주 추천 작품 포털과 가게들'],
+  ['play-island','오호플 놀이 섬 — 회전목마를 둘러싼 웹게임 가게들'],
+  ['tool-island','오호플 도구 섬 — AI 연구소, 생산성 센터와 아이디어의 나무'],
+  ['night-village','밤의 오호플 마을 — 가로등이 켜진 분수 광장과 큰길'],
+];
 // 오호플 소개 페이지 (/about/): "오호플이 뭐야?"에 바로 답하는 정의 페이지
 {
   const url = BASE + '/about/';
@@ -151,10 +160,11 @@ ${near.length ? `<h2>다른 발견 노트</h2><ul>${near.map(x => `<li><a href="
     ['내 작품도 오호플에 소개될 수 있나요?', '네. 설치 없이 브라우저에서 바로 열리는 작품이면 eunhaebleu@naver.com 으로 주소를 보내 주세요. 직접 써 보고 골라 소개해요. 소개를 원하지 않으면 바로 내려요.'],
   ];
   const ld = {'@context':'https://schema.org','@graph':[
-    {'@type':'AboutPage','@id':url,'url':url,'name':'오호플이란? — 오늘의 호기심 플레이','inLanguage':'ko','isPartOf':{'@id':BASE+'/#website'},'about':{'@id':BASE+'/#org'},'dateModified':today},
+    {'@type':'AboutPage','@id':url,'url':url,'name':'오호플이란? — 오늘의 호기심 플레이','inLanguage':'ko','image':SHOTS.map(([f,alt])=>({'@type':'ImageObject','contentUrl':`${BASE}/img/ohopl-${f}.webp`,'caption':alt,'name':alt})),'isPartOf':{'@id':BASE+'/#website'},'about':{'@id':BASE+'/#org'},'dateModified':today},
     {'@type':'FAQPage','mainEntity':faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))}]};
   const body = `<main><h1>오호플이란?</h1>
 <p class="lead"><b>오호플(OHOPL · 오늘의 호기심 플레이)</b>은 AI로 만든 게임, 웹 도구, 신기한 웹사이트를 운영자가 직접 써 보고 골라 소개하는 <b>3D 창작 마을</b>이에요. 동물 캐릭터로 마을을 걸으며 가게 문을 열면 작품이 열려요.</p>
+<div class="shots">${SHOTS.map(([f,alt])=>`<figure><img src="/img/ohopl-${f}.webp" alt="${esc(alt)}" width="1200" height="900" loading="lazy"><figcaption>${esc(alt)}</figcaption></figure>`).join('')}</div>
 <h2>마을 구성</h2><ul>
 <li><b>분수 광장</b> — 이번 주 가장 반응 좋은 작품 4개가 포털로 열려 있어요.</li>
 <li><b>큰길</b> — 반응이 쌓여 이사 온 인기 가게예요.</li>
@@ -165,11 +175,11 @@ ${near.length ? `<h2>다른 발견 노트</h2><ul>${near.map(x => `<li><a href="
 <p class="btns"><a class="btn" href="/">3D 마을 들어가기</a><a class="btn ghost" href="/works/">작품 전체 목록</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener" target="_blank">유튜브 오호아재</a></p>
 <h2>자주 묻는 질문</h2><div class="faq">${faq.map(([q, a]) => `<details open><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></main>`;
   fs.mkdirSync(path.join(ROOT, 'about'), {recursive: true});
-  fs.writeFileSync(path.join(ROOT, 'about', 'index.html'), head('오호플이란? — AI로 만든 게임·도구를 골라 모은 3D 창작 마을', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 웹게임·웹 도구·신기한 사이트 ${n}개를 직접 써 보고 골라 모은 3D 마을이에요. 무료, 설치 없이 브라우저에서.`, url, BASE + '/og-image.png', ld) + body + foot);
+  fs.writeFileSync(path.join(ROOT, 'about', 'index.html'), head('오호플이란? — AI로 만든 게임·도구를 골라 모은 3D 창작 마을', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 웹게임·웹 도구·신기한 사이트 ${n}개를 직접 써 보고 골라 모은 3D 마을이에요. 무료, 설치 없이 브라우저에서.`, url, BASE + '/img/ohopl-village-aerial.webp', ld) + body + foot);
 }
-const urls = [{loc:BASE+'/', img:BASE+'/og-image.png', t:'오호플 3D 창작 마을'}, {loc:BASE+'/about/'}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
+const urls = [{loc:BASE+'/', imgs:[[BASE+'/og-image.png','오호플 OHOPL · 오늘의 호기심 플레이'], ...SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])]}, {loc:BASE+'/about/', imgs:SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`
-  + urls.map(u => `  <url><loc>${u.loc}</loc><lastmod>${u.last || today}</lastmod>${u.img ? `<image:image><image:loc>${u.img}</image:loc><image:title>${esc(u.t)}</image:title></image:image>` : ''}</url>`).join('\n') + '\n</urlset>\n');
+  + urls.map(u => `  <url><loc>${u.loc}</loc><lastmod>${u.last || today}</lastmod>${(u.imgs || (u.img ? [[u.img, u.t]] : [])).map(([i, t]) => `<image:image><image:loc>${i}</image:loc><image:title>${esc(t)}</image:title></image:image>`).join('')}</url>`).join('\n') + '\n</urlset>\n');
 
 // 공통: 작품 소개 블록
 const pickBlock = ([id, line]) => { const w = byIdW[id]; if (!w) return ''; const t = thumb(w);

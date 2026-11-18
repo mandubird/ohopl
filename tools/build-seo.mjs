@@ -31,7 +31,8 @@ const postsFor = id => posts.filter(p => (p.sections || []).some(s => (s.picks |
 const kdate = d => { const [y, m, dd] = d.split('-').map(Number); return `${y}년 ${m}월 ${dd}일`; };
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
-const CSS = `.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:18px 0}.shots figure{margin:0}.shots img{width:100%;height:auto;border-radius:14px;display:block}.shots figcaption{font-size:13px;color:var(--muted);margin-top:6px}
+const CSS = `.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0 22px}.wgrid a{text-decoration:none;color:var(--fg);font-size:13px}.wgrid img{width:100%;height:auto;border-radius:10px;display:block;margin-bottom:4px}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:18px 0}.shots figure{margin:0}.shots img{width:100%;height:auto;border-radius:14px;display:block}.shots figcaption{font-size:13px;color:var(--muted);margin-top:6px}
 :root{--bg:#fbf8f2;--fg:#1d2033;--muted:#5d6278;--card:#ffffff;--line:#e7e1d6;--accent:#f26a2e}
 @media (prefers-color-scheme:dark){:root{--bg:#141626;--fg:#eef0f8;--muted:#a7acc2;--card:#1d2036;--line:#2c3050;--accent:#ff8a52}}
 *{box-sizing:border-box}body{word-break:keep-all;overflow-wrap:anywhere;margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 'IBM Plex Sans KR',system-ui,sans-serif}
@@ -172,12 +173,14 @@ const SHOTS = [
 <li><b>도구 섬</b> — PDF·한글 파일·여행 준비처럼 쓸모 있는 웹 도구가 모인 섬이에요.</li>
 <li><b>서쪽 골목</b> — 만들기·배우기, <b>동쪽 골목</b> — 3D·인터랙티브 탐험 작품이에요.</li>
 <li><b>성소 언덕</b> — 온라인 교회·성당·절이 있는 조용한 곳이에요.</li></ul>
+
+<h2>오호플이 고른 작품 ${works.filter(w=>thumb(w)).length}곳</h2><div class="wgrid">${works.filter(w=>thumb(w)).map(w=>`<a href="/w/${w.id}/"><img src="${thumb(w)}" alt="오호플이 고른 ${esc(w.name)} — ${esc(D.TYPES[w.type].ko)}" width="640" height="480" loading="lazy"><span>${esc(w.name)}</span></a>`).join('')}</div>
 <p class="btns"><a class="btn" href="/">3D 마을 들어가기</a><a class="btn ghost" href="/works/">작품 전체 목록</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener" target="_blank">유튜브 오호아재</a></p>
 <h2>자주 묻는 질문</h2><div class="faq">${faq.map(([q, a]) => `<details open><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></main>`;
   fs.mkdirSync(path.join(ROOT, 'about'), {recursive: true});
   fs.writeFileSync(path.join(ROOT, 'about', 'index.html'), head('오호플이란? — AI로 만든 게임·도구를 골라 모은 3D 창작 마을', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 웹게임·웹 도구·신기한 사이트 ${n}개를 직접 써 보고 골라 모은 3D 마을이에요. 무료, 설치 없이 브라우저에서.`, url, BASE + '/img/ohopl-village-aerial.webp', ld) + body + foot);
 }
-const urls = [{loc:BASE+'/', imgs:[[BASE+'/og-image.png','오호플 OHOPL · 오늘의 호기심 플레이'], ...SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])]}, {loc:BASE+'/about/', imgs:SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
+const urls = [{loc:BASE+'/', imgs:[[BASE+'/og-image.png','오호플 OHOPL · 오늘의 호기심 플레이'], ...SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])]}, {loc:BASE+'/about/', imgs:SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt]).concat(works.filter(w=>thumb(w)).map(w=>[thumb(w),`오호플이 고른 ${w.name}`]))}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`
   + urls.map(u => `  <url><loc>${u.loc}</loc><lastmod>${u.last || today}</lastmod>${(u.imgs || (u.img ? [[u.img, u.t]] : [])).map(([i, t]) => `<image:image><image:loc>${i}</image:loc><image:title>${esc(t)}</image:title></image:image>`).join('')}</url>`).join('\n') + '\n</urlset>\n');
 

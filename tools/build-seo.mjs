@@ -75,7 +75,7 @@ const head = (title, desc, url, img, ld) => `<!doctype html><html lang="ko"><hea
 <style>${CSS}</style></head><body><div class="wrap">
 <header class="top"><a class="logo" href="/">오호플<small>오늘의 호기심 플레이</small></a><nav class="btns" style="margin:0"><a class="btn ghost" href="/about/">소개</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="/works/">작품 전체</a></nav></header>`;
 const TRUST = `<div class="trust"><div><b>직접 해 보고 골라요</b><p>운영자가 작품을 직접 열어 보고, 해 볼 만한 것만 소개해요.</p></div><div><b>휴대폰에서 되는지 확인해요</b><p>설치 없이 브라우저에서 열리는지, 휴대폰에서도 되는지 보고 알아둘 점에 적어요.</p></div><div><b>제작자가 원하면 바로 내려요</b><p>소개된 작품은 각 제작자가 운영해요. 내려 달라고 하면 바로 내려요.</p></div></div>`;
-const foot = `<footer><nav class="fhub"><div><b>분류</b><a href="/works/play/">놀이(웹게임)</a><a href="/works/tools/">도구</a><a href="/works/create/">만들기</a><a href="/works/learn/">배우기</a><a href="/works/explore/">탐험</a><a href="/works/">작품 전체</a></div><div><b>시즌</b><a href="/season/christmas/">크리스마스에 할 것</a><a href="/season/winter-break/">겨울방학에 할 것</a><a href="/season/new-year/">새해에 할 것</a></div><div><b>읽을거리</b><a href="/guide/">가이드</a><a href="/posts/">발견 노트</a><a href="/monthly/">이달의 오호플</a><a href="/gallery/">동물 미술관</a></div><div><b>오호플</b><a href="/about/">오호플이란?</a><a href="/about/policy/">큐레이션 원칙</a><a href="/">3D 마을 들어가기</a><a href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener">유튜브 오호아재</a></div></nav><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p>문의·작품 소개 신청 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
+const foot = `<footer><nav class="fhub"><div><b>분류</b><a href="/works/play/">놀이(웹게임)</a><a href="/works/tools/">도구</a><a href="/works/create/">만들기</a><a href="/works/learn/">배우기</a><a href="/works/explore/">탐험</a><a href="/works/">작품 전체</a></div><div><b>시즌</b><a href="/season/christmas/">크리스마스에 할 것</a><a href="/season/winter-break/">겨울방학에 할 것</a><a href="/season/new-year/">새해에 할 것</a></div><div><b>읽을거리</b><a href="/guide/">가이드</a><a href="/posts/">발견 노트</a><a href="/monthly/">이달의 오호플</a><a href="/gallery/">동물 미술관</a></div><div><b>오호플</b><a href="/about/">오호플이란?</a><a href="/about/policy/">큐레이션 원칙</a><a href="/">3D 마을 들어가기</a><a href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener">유튜브 오호아재</a><a href="https://blog.naver.com/mandubird/224482662045" rel="me noopener">네이버 블로그</a></div></nav><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p>문의·작품 소개 신청 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
 const card = w => { const T = D.TYPES[w.type], t = thumb(w);
   return `<a class="item" href="/w/${w.id}/">${t ? `<img src="${t}" alt="${esc(w.name)} 첫 화면 · 오호플" loading="lazy" width="640" height="480">` : `<div class="ph" style="background:${COLORS[w.type]}">${esc(w.name.replace(/[^가-힣A-Za-z0-9]/g,'').slice(0,1))}</div>`}<b>${esc(w.name)}</b><span>${T.ko} · ${esc(w.desc.slice(0, 46))}${w.desc.length > 46 ? '…' : ''}</span></a>`; };
 
@@ -205,7 +205,7 @@ const SHOTS = [
 <li><b>성소 언덕</b> — 온라인 교회·성당·절이 있는 조용한 곳이에요.</li></ul>
 
 <h2>오호플이 고른 작품 ${works.filter(w=>thumb(w)).length}곳</h2><div class="wgrid">${works.filter(w=>thumb(w)).map(w=>`<a href="/w/${w.id}/"><img src="${thumb(w)}" alt="오호플이 고른 ${esc(w.name)} — ${esc(D.TYPES[w.type].ko)}" width="640" height="480" loading="lazy"><span>${esc(w.name)}</span></a>`).join('')}</div>
-<p class="btns"><a class="btn" href="/">3D 마을 들어가기</a><a class="btn ghost" href="/works/">작품 전체 목록</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener" target="_blank">유튜브 오호아재</a></p>
+<p class="btns"><a class="btn" href="/">3D 마을 들어가기</a><a class="btn ghost" href="/works/">작품 전체 목록</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener" target="_blank">유튜브 오호아재</a><a class="btn ghost" href="https://blog.naver.com/mandubird/224482662045" rel="me noopener" target="_blank">만든 이야기(블로그)</a></p>
 <h2>자주 묻는 질문</h2><div class="faq">${faq.map(([q, a]) => `<details open><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></main>`;
   fs.mkdirSync(path.join(ROOT, 'about'), {recursive: true});
   fs.writeFileSync(path.join(ROOT, 'about', 'index.html'), head('오호플이란? — AI로 만든 게임·도구를 골라 모은 3D 창작 마을', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 웹게임·웹 도구·신기한 사이트 ${n}개를 직접 써 보고 골라 모은 3D 마을이에요. 무료, 설치 없이 브라우저에서.`, url, BASE + '/img/ohopl-village-aerial.webp', ld) + body + foot);
@@ -400,7 +400,7 @@ fs.writeFileSync(path.join(ROOT, 'llms.txt'), `# 오호플 (OHOPL · 오늘의 �
 
 - 사이트: ${BASE}/
 - 오호플이란?(소개·자주 묻는 질문): ${BASE}/about/
-- 운영: 블루루반 · 유튜브 오호아재 https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ
+- 운영: 블루루반 · 유튜브 오호아재 https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ · 네이버 블로그 https://blog.naver.com/mandubird/224482662045
 - 전체 목록: ${BASE}/works/
 - 발견 노트(주제별 추천 글): ${BASE}/posts/
 - 이달의 오호플(월간 정리): ${BASE}/monthly/
@@ -428,7 +428,7 @@ console.log(`pages ${works.length}, base ${BASE}`);
 {
   const siteLd = {'@context':'https://schema.org','@graph':[
     {'@type':'WebSite','@id':BASE+'/#website','url':BASE+'/','name':'오호플','alternateName':['OHOPL','ohopl','오호 플','오호플레이','오늘의 호기심 플레이'],'inLanguage':'ko','description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','publisher':{'@id':BASE+'/#org'}},
-    {'@type':'Organization','@id':BASE+'/#org','name':'오호플','legalName':'블루루반','url':BASE+'/','logo':BASE+'/icon-512.png','email':'eunhaebleu@naver.com','alternateName':['OHOPL','ohopl','오호 플','오호플레이','오늘의 호기심 플레이'],'description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','sameAs':['https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ']},
+    {'@type':'Organization','@id':BASE+'/#org','name':'오호플','legalName':'블루루반','url':BASE+'/','logo':BASE+'/icon-512.png','email':'eunhaebleu@naver.com','alternateName':['OHOPL','ohopl','오호 플','오호플레이','오늘의 호기심 플레이'],'description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','sameAs':['https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ','https://blog.naver.com/mandubird']},
     {'@type':'FAQPage','mainEntity':SITE_FAQ.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))},
     {'@type':'ItemList','name':'오호플이 고른 AI 창작 작품','numberOfItems':works.length,'itemListElement':works.map((w,i)=>({'@type':'ListItem','position':i+1,'url':pageUrl(w),'name':w.name}))}]};
   let idx = fs.readFileSync(path.join(ROOT,'index.html'),'utf8');

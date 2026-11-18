@@ -424,6 +424,16 @@ ${order.map(k => `\n### ${D.TYPES[k].ko}\n` + works.filter(w => w.type === k).ma
 `);
 console.log(`pages ${works.length}, base ${BASE}`);
 
+
+// 허브 페이지에 BreadcrumbList 추가 (검색 결과의 사이트 구조 이해용)
+for (const [dir, name] of [['works','작품 전체'],['posts','발견 노트'],['guide','가이드'],['monthly','이달의 오호플'],['about','오호플이란?'],['about/policy','큐레이션 원칙']]) {
+  const f = path.join(ROOT, dir, 'index.html'); if (!fs.existsSync(f)) continue;
+  const items = [{'@type':'ListItem','position':1,'name':'오호플','item':BASE+'/'}];
+  if (dir === 'about/policy') items.push({'@type':'ListItem','position':2,'name':'오호플이란?','item':BASE+'/about/'});
+  items.push({'@type':'ListItem','position':items.length+1,'name':name,'item':`${BASE}/${dir}/`});
+  const tag = `<script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@type':'BreadcrumbList','itemListElement':items})}</script>`;
+  let h = fs.readFileSync(f, 'utf8'); if (!h.includes('"BreadcrumbList"')) { h = h.replace('</head>', tag + '</head>'); fs.writeFileSync(f, h); }
+}
 // 메인 index.html: 구조화 데이터(head)와 자바스크립트 없이도 읽히는 작품 링크(noscript)를 갱신
 {
   const siteLd = {'@context':'https://schema.org','@graph':[

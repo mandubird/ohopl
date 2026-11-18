@@ -9,12 +9,13 @@
 import fs from 'node:fs'; import path from 'node:path'; import vm from 'node:vm';
 import { POSTS } from '../content/posts.mjs';
 import { SEASONS, CATEGORY_PAGES } from '../content/seasons.mjs';
+import { MONTHLY } from '../content/monthly.mjs';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const BASE = (process.argv[2] || process.env.SITE_URL || 'https://ohopl.com').replace(/\/$/, '');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const a = html.indexOf('const TYPES = {'), b = html.indexOf('const VACANTS');
 const g = html.indexOf('const GALLERY = {'), ge = html.indexOf('};', g) + 2;
-const code = html.slice(a, b) + '\n' + html.slice(g, ge) + '\n;({TYPES, WORKS, HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS, PLACES, THUMBS:[...THUMBS], GALLERY})';
+const code = html.slice(a, b) + '\n' + html.slice(g, ge) + '\n;({TYPES, WORKS, HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS, PLACES, THUMBS:[...THUMBS], GALLERY, MOODS: typeof MOODS!=="undefined"?MOODS:[]})';
 const D = vm.runInNewContext(code, {});
 const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); // 한국 날짜
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -31,7 +32,11 @@ const postsFor = id => posts.filter(p => (p.sections || []).some(s => (s.picks |
 const kdate = d => { const [y, m, dd] = d.split('-').map(Number); return `${y}년 ${m}월 ${dd}일`; };
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
-const CSS = `.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0 22px}.wgrid a{text-decoration:none;color:var(--fg);font-size:13px}.wgrid img{width:100%;height:auto;border-radius:10px;display:block;margin-bottom:4px}
+const CSS = `.mpicks{display:grid;gap:12px;margin:12px 0 20px}.mpick{display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;text-decoration:none;color:var(--fg)}.mpick img{width:100%;height:auto;border-radius:10px}.mpick p{margin:4px 0 0;color:var(--muted);font-size:14px}@media(max-width:480px){.mpick{grid-template-columns:110px 1fr}}.rules{display:grid;gap:12px;padding-left:20px}.rules p{margin:4px 0 0;color:var(--muted)}.mlist{list-style:none;padding:0;display:grid;gap:12px}.mlist p{margin:4px 0 0;color:var(--muted)}
+.fhub{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 16px}.fhub div{display:flex;flex-direction:column;gap:4px}.fhub b{font-size:13px;margin-bottom:2px}.fhub a{font-size:13px;color:var(--muted);text-decoration:none}.fhub a:hover{text-decoration:underline}
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:22px 0}.trust div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}.trust b{font-size:14px}.trust p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.moods{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:14px 0 22px}.moods a{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--fg)}.moods a span{font-size:22px}.moods a small{color:var(--muted);font-size:12px}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0 22px}.wgrid a{text-decoration:none;color:var(--fg);font-size:13px}.wgrid img{width:100%;height:auto;border-radius:10px;display:block;margin-bottom:4px}
 .shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:18px 0}.shots figure{margin:0}.shots img{width:100%;height:auto;border-radius:14px;display:block}.shots figcaption{font-size:13px;color:var(--muted);margin-top:6px}
 :root{--bg:#fbf8f2;--fg:#1d2033;--muted:#5d6278;--card:#ffffff;--line:#e7e1d6;--accent:#f26a2e}
 @media (prefers-color-scheme:dark){:root{--bg:#141626;--fg:#eef0f8;--muted:#a7acc2;--card:#1d2036;--line:#2c3050;--accent:#ff8a52}}
@@ -65,7 +70,8 @@ const head = (title, desc, url, img, ld) => `<!doctype html><html lang="ko"><hea
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g,'\\u003c')}</script>
 <style>${CSS}</style></head><body><div class="wrap">
 <header class="top"><a class="logo" href="/">오호플<small>오늘의 호기심 플레이</small></a><nav class="btns" style="margin:0"><a class="btn ghost" href="/about/">소개</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="/works/">작품 전체</a></nav></header>`;
-const foot = `<footer><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p><a href="/about/">오호플이란?</a> · 문의 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
+const TRUST = `<div class="trust"><div><b>직접 해 보고 골라요</b><p>운영자가 작품을 직접 열어 보고, 해 볼 만한 것만 소개해요.</p></div><div><b>휴대폰에서 되는지 확인해요</b><p>설치 없이 브라우저에서 열리는지, 휴대폰에서도 되는지 보고 알아둘 점에 적어요.</p></div><div><b>제작자가 원하면 바로 내려요</b><p>소개된 작품은 각 제작자가 운영해요. 내려 달라고 하면 바로 내려요.</p></div></div>`;
+const foot = `<footer><nav class="fhub"><div><b>분류</b><a href="/works/play/">놀이(웹게임)</a><a href="/works/tools/">도구</a><a href="/works/create/">만들기</a><a href="/works/learn/">배우기</a><a href="/works/explore/">탐험</a><a href="/works/">작품 전체</a></div><div><b>시즌</b><a href="/season/christmas/">크리스마스에 할 것</a><a href="/season/winter-break/">겨울방학에 할 것</a><a href="/season/new-year/">새해에 할 것</a></div><div><b>읽을거리</b><a href="/posts/">발견 노트</a><a href="/monthly/">이달의 오호플</a><a href="/gallery/">동물 미술관</a></div><div><b>오호플</b><a href="/about/">오호플이란?</a><a href="/about/policy/">큐레이션 원칙</a><a href="/">3D 마을 들어가기</a><a href="https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ" rel="me noopener">유튜브 오호아재</a></div></nav><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p>문의·작품 소개 신청 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
 const card = w => { const T = D.TYPES[w.type], t = thumb(w);
   return `<a class="item" href="/w/${w.id}/">${t ? `<img src="${t}" alt="${esc(w.name)} 첫 화면 · 오호플" loading="lazy" width="640" height="480">` : `<div class="ph" style="background:${COLORS[w.type]}">${esc(w.name.replace(/[^가-힣A-Za-z0-9]/g,'').slice(0,1))}</div>`}<b>${esc(w.name)}</b><span>${T.ko} · ${esc(w.desc.slice(0, 46))}${w.desc.length > 46 ? '…' : ''}</span></a>`; };
 
@@ -96,7 +102,7 @@ ${thumb(w) ? `<img class="shot" src="${thumb(w)}" alt="오호플이 고른 ${esc
 ${postsFor(w.id).length ? `<h2>이 작품이 소개된 글</h2><ul>${postsFor(w.id).map(p => `<li><a href="/posts/${p.slug}/">${esc(p.title)}</a></li>`).join('')}</ul>` : ''}
 ${related.length ? `<h2>비슷한 ${T.ko} 작품</h2><div class="grid">${related.map(card).join('')}</div>` : ''}`;
   fs.mkdirSync(path.join(ROOT, 'w', w.id), {recursive:true});
-  fs.writeFileSync(path.join(ROOT, 'w', w.id, 'index.html'), head(title, desc, url, img, ld) + body + foot);
+  fs.writeFileSync(path.join(ROOT, 'w', w.id, 'index.html'), head(title, desc, url, img, ld) + body + TRUST + foot);
 }
 
 // 작품 목록
@@ -166,6 +172,8 @@ const SHOTS = [
   const body = `<main><h1>오호플이란?</h1>
 <p class="lead"><b>오호플(OHOPL · 오늘의 호기심 플레이)</b>은 AI로 만든 게임, 웹 도구, 신기한 웹사이트를 운영자가 직접 써 보고 골라 소개하는 <b>3D 창작 마을</b>이에요. 동물 캐릭터로 마을을 걸으며 가게 문을 열면 작품이 열려요.</p>
 <div class="shots">${SHOTS.map(([f,alt])=>`<figure><img src="/img/ohopl-${f}.webp" alt="${esc(alt)}" width="1200" height="900" loading="lazy"><figcaption>${esc(alt)}</figcaption></figure>`).join('')}</div>
+<h2>이럴 때 오호플</h2><div class="moods">${(D.MOODS||[]).map(m=>`<a href="${m.href}"><span>${m.e}</span><b>${esc(m.t)}</b><small>${esc(m.s)}</small></a>`).join('')}</div>
+<h2>오호플이 작품을 고르는 방법</h2>${TRUST}<p><a href="/about/policy/">큐레이션 원칙 자세히 보기 →</a></p>
 <h2>마을 구성</h2><ul>
 <li><b>분수 광장</b> — 이번 주 가장 반응 좋은 작품 4개가 포털로 열려 있어요.</li>
 <li><b>큰길</b> — 반응이 쌓여 이사 온 인기 가게예요.</li>
@@ -180,7 +188,45 @@ const SHOTS = [
   fs.mkdirSync(path.join(ROOT, 'about'), {recursive: true});
   fs.writeFileSync(path.join(ROOT, 'about', 'index.html'), head('오호플이란? — AI로 만든 게임·도구를 골라 모은 3D 창작 마을', `오호플(OHOPL, 오늘의 호기심 플레이)은 AI로 만든 웹게임·웹 도구·신기한 사이트 ${n}개를 직접 써 보고 골라 모은 3D 마을이에요. 무료, 설치 없이 브라우저에서.`, url, BASE + '/img/ohopl-village-aerial.webp', ld) + body + foot);
 }
-const urls = [{loc:BASE+'/', imgs:[[BASE+'/og-image.png','오호플 OHOPL · 오늘의 호기심 플레이'], ...SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])]}, {loc:BASE+'/about/', imgs:SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt]).concat(works.filter(w=>thumb(w)).map(w=>[thumb(w),`오호플이 고른 ${w.name}`]))}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
+
+// 큐레이션 원칙 (/about/policy/)
+{
+  const url = BASE + '/about/policy/';
+  const rules = [
+    ['직접 열어 보고 고릅니다', '모든 작품은 운영자가 브라우저에서 직접 열어 첫 화면까지 확인한 뒤 소개해요. 원본 주소가 열리지 않으면 소개하지 않아요.'],
+    ['설치 없이 되는 것만', '앱 설치나 프로그램 다운로드가 필요한 작품은 소개하지 않아요. 휴대폰에서 안 되는 작품은 그렇다고 알아둘 점에 적어요.'],
+    ['확인한 것과 못 한 것을 구분합니다', '무료 여부, 로그인, 지원 기기, 언어처럼 확인한 사실만 적고, 확인하지 못한 내용은 단정하지 않아요.'],
+    ['제외하는 작품', '도박·성인 요소, 광고나 제휴 링크가 중심인 서비스, 잘 알려진 게임을 그대로 베낀 작품은 소개하지 않아요.'],
+    ['분류와 자리', '작품은 놀이·도구·만들기·배우기·탐험 중 하나로 분류해 마을의 정해진 구역에 들어가요. 반응이 쌓이면 큰길로, 매주 반응 상위 4곳은 분수 광장 포털로 옮겨요.'],
+    ['제작자가 원하면 바로 내립니다', '소개된 작품은 각 제작자가 운영해요. 제작자가 원하지 않거나 원본이 닫히면 바로 내려요. eunhaebleu@naver.com'],
+    ['돈을 받고 순서를 바꾸지 않습니다', '오호플은 작품 소개나 자리 배치를 돈을 받고 정하지 않아요.'],
+  ];
+  const ld = {'@context':'https://schema.org','@type':'WebPage','@id':url,'url':url,'name':'오호플 큐레이션 원칙','inLanguage':'ko','isPartOf':{'@id':BASE+'/#website'},'publisher':{'@id':BASE+'/#org'},'dateModified':today};
+  const body = `<main><h1>오호플 큐레이션 원칙</h1><p class="lead">오호플은 AI로 만든 게임·도구·웹서비스를 아래 원칙으로 골라 소개해요.</p>${TRUST}<ol class="rules">${rules.map(([h,p])=>`<li><b>${esc(h)}</b><p>${esc(p)}</p></li>`).join('')}</ol><p class="btns"><a class="btn" href="/about/">오호플이란?</a><a class="btn ghost" href="/works/">작품 전체 목록</a></p></main>`;
+  fs.mkdirSync(path.join(ROOT, 'about', 'policy'), {recursive: true});
+  fs.writeFileSync(path.join(ROOT, 'about', 'policy', 'index.html'), head('오호플 큐레이션 원칙 — 작품을 고르고 소개하는 기준', '오호플이 AI로 만든 게임·도구·웹서비스를 고르는 기준: 직접 열어 확인, 설치 없는 작품만, 확인한 사실만 기록, 제작자가 원하면 바로 내림.', url, BASE + '/og-image.png', ld) + body + foot);
+}
+// 이달의 오호플 (/monthly/<ym>/, /monthly/)
+const monthly = MONTHLY.filter(m => m.date <= today).sort((a, b) => b.ym.localeCompare(a.ym));
+for (const M of monthly) {
+  const url = `${BASE}/monthly/${M.ym}/`;
+  const picks = M.sections.flatMap(s => s.picks).map(([id]) => byIdW[id]).filter(Boolean);
+  const img = picks.map(thumb).find(Boolean) || BASE + '/og-image.png';
+  const ld = {'@context':'https://schema.org','@graph':[{'@type':'Article','@id':url+'#article','headline':M.title,'description':M.desc,'datePublished':M.date,'dateModified':M.date,'inLanguage':'ko','image':img,'author':{'@id':BASE+'/#org'},'publisher':{'@id':BASE+'/#org'},'mainEntityOfPage':url},
+    {'@type':'ItemList','name':M.title,'itemListElement':picks.map((w,i)=>({'@type':'ListItem','position':i+1,'url':pageUrl(w),'name':w.name}))}]};
+  const sec = M.sections.map(S => `<h2>${esc(S.h)}</h2><div class="mpicks">${S.picks.map(([id, line]) => { const w = byIdW[id]; if (!w) return ''; const t = thumb(w); return `<a class="mpick" href="/w/${w.id}/">${t ? `<img src="${t}" alt="오호플이 고른 ${esc(w.name)} 첫 화면" width="640" height="480" loading="lazy">` : ''}<div><b>${esc(w.name)}</b><p>${esc(line)}</p></div></a>`; }).join('')}</div>`).join('');
+  const body = `<main><p class="crumb"><a href="/monthly/">이달의 오호플</a> · ${kdate(M.date)}</p><h1>${esc(M.title)}</h1>${M.intro.map(p=>`<p class="lead">${esc(p)}</p>`).join('')}${sec}<h2>이달의 마을 소식</h2><ul>${M.news.map(n=>`<li>${esc(n)}</li>`).join('')}</ul><p class="btns"><a class="btn" href="/">3D 마을 들어가기</a><a class="btn ghost" href="/monthly/">지난 달 보기</a></p></main>`;
+  fs.mkdirSync(path.join(ROOT, 'monthly', M.ym), {recursive: true});
+  fs.writeFileSync(path.join(ROOT, 'monthly', M.ym, 'index.html'), head(`${M.title} | 오호플`, M.desc, url, img, ld) + body + foot);
+}
+{
+  const url = BASE + '/monthly/';
+  const ld = {'@context':'https://schema.org','@type':'CollectionPage','@id':url,'url':url,'name':'이달의 오호플','inLanguage':'ko','isPartOf':{'@id':BASE+'/#website'}};
+  const body = `<main><h1>이달의 오호플</h1><p class="lead">매달 오호플 마을에 새로 들어온 작품과 가장 반응이 좋았던 작품, 마을 소식을 정리해요.</p><ul class="mlist">${monthly.map(M=>`<li><a href="/monthly/${M.ym}/"><b>${esc(M.title)}</b></a><p>${esc(M.desc)}</p></li>`).join('')}</ul></main>`;
+  fs.mkdirSync(path.join(ROOT, 'monthly'), {recursive: true});
+  fs.writeFileSync(path.join(ROOT, 'monthly', 'index.html'), head('이달의 오호플 — 매달 새로 들어온 웹게임·웹 도구 정리', '매달 오호플에 새로 들어온 작품, 반응 1위 작품, 마을 소식을 정리한 월간 기록이에요.', url, BASE + '/og-image.png', ld) + body + foot);
+}
+const urls = [{loc:BASE+'/', imgs:[[BASE+'/og-image.png','오호플 OHOPL · 오늘의 호기심 플레이'], ...SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt])]}, {loc:BASE+'/about/', imgs:SHOTS.map(([f,alt])=>[`${BASE}/img/ohopl-${f}.webp`,alt]).concat(works.filter(w=>thumb(w)).map(w=>[thumb(w),`오호플이 고른 ${w.name}`]))}, {loc:BASE+'/works/'}, {loc:BASE+'/posts/'}, {loc:BASE+'/about/policy/'}, {loc:BASE+'/monthly/'}, ...monthly.map(M=>({loc:`${BASE}/monthly/${M.ym}/`, last:M.date})), ...posts.map(p => ({loc:postUrl(p), last:p.date})), ...SEASONS.map(S => ({loc:`${BASE}/season/${S.slug}/`})), ...Object.entries(CATEGORY_PAGES).filter(([k]) => works.some(w => w.type === k)).map(([k, C]) => ({loc:`${BASE}/works/${C.slug}/`})), {loc:BASE+'/gallery/'}, ...works.filter(w=>w.id!=='gallery').map(w => ({loc:pageUrl(w), img:thumb(w), t:w.name+' 첫 화면'}))];
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`
   + urls.map(u => `  <url><loc>${u.loc}</loc><lastmod>${u.last || today}</lastmod>${(u.imgs || (u.img ? [[u.img, u.t]] : [])).map(([i, t]) => `<image:image><image:loc>${i}</image:loc><image:title>${esc(t)}</image:title></image:image>`).join('')}</url>`).join('\n') + '\n</urlset>\n');
 
@@ -280,6 +326,8 @@ fs.writeFileSync(path.join(ROOT, 'llms.txt'), `# 오호플 (OHOPL · 오늘의 �
 - 운영: 블루루반 · 유튜브 오호아재 https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ
 - 전체 목록: ${BASE}/works/
 - 발견 노트(주제별 추천 글): ${BASE}/posts/
+- 이달의 오호플(월간 정리): ${BASE}/monthly/
+- 큐레이션 원칙(작품을 고르는 기준): ${BASE}/about/policy/
 - 분류: 놀이(게임), 도구(일·생활), 만들기(창작), 배우기, 탐험(3D·인터랙티브)
 - 공간: 분수 광장(이번 주 추천), 큰길, 골목, 도구 섬(생산성·창작 도구), 놀이 섬(새로 들어온 놀이·회전목마), 성소 언덕(교회·성당·절)
 - 원칙: 오호플이 직접 확인한 작품만 소개하고, 제작자가 원하지 않으면 바로 내려요.
@@ -301,8 +349,8 @@ console.log(`pages ${works.length}, base ${BASE}`);
 // 메인 index.html: 구조화 데이터(head)와 자바스크립트 없이도 읽히는 작품 링크(noscript)를 갱신
 {
   const siteLd = {'@context':'https://schema.org','@graph':[
-    {'@type':'WebSite','@id':BASE+'/#website','url':BASE+'/','name':'오호플','alternateName':['OHOPL','오늘의 호기심 플레이'],'inLanguage':'ko','description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','publisher':{'@id':BASE+'/#org'}},
-    {'@type':'Organization','@id':BASE+'/#org','name':'오호플','legalName':'블루루반','url':BASE+'/','logo':BASE+'/icon-512.png','email':'eunhaebleu@naver.com','alternateName':['OHOPL','오늘의 호기심 플레이'],'description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','sameAs':['https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ']},
+    {'@type':'WebSite','@id':BASE+'/#website','url':BASE+'/','name':'오호플','alternateName':['OHOPL','ohopl','오호 플','오호플레이','오늘의 호기심 플레이'],'inLanguage':'ko','description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','publisher':{'@id':BASE+'/#org'}},
+    {'@type':'Organization','@id':BASE+'/#org','name':'오호플','legalName':'블루루반','url':BASE+'/','logo':BASE+'/icon-512.png','email':'eunhaebleu@naver.com','alternateName':['OHOPL','ohopl','오호 플','오호플레이','오늘의 호기심 플레이'],'description':'AI로 만든 게임, 도구, 신기한 웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을','sameAs':['https://www.youtube.com/channel/UCvJzrFknk4V-WiTaJlCkZTQ']},
     {'@type':'ItemList','name':'오호플이 고른 AI 창작 작품','numberOfItems':works.length,'itemListElement':works.map((w,i)=>({'@type':'ListItem','position':i+1,'url':pageUrl(w),'name':w.name}))}]};
   let idx = fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
   idx = idx.replace(/<!--seo-ld-->[\s\S]*?<!--\/seo-ld-->\n?/,'').replace(/<!--seo-list-->[\s\S]*?<!--\/seo-list-->\n?/,'');

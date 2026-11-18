@@ -66,7 +66,7 @@ const head = (title, desc, url, img, ld) => `<!doctype html><html lang="ko"><hea
 <header class="top"><a class="logo" href="/">오호플<small>오늘의 호기심 플레이</small></a><nav class="btns" style="margin:0"><a class="btn ghost" href="/about/">소개</a><a class="btn ghost" href="/posts/">발견 노트</a><a class="btn ghost" href="/works/">작품 전체</a></nav></header>`;
 const foot = `<footer><p>오호플은 AI로 만든 게임·도구·웹서비스를 직접 써 보고 골라 소개하는 3D 창작 마을이에요. 소개된 작품은 각 제작자가 운영하며, 제작자가 원하지 않으면 바로 내려요.</p><p><a href="/about/">오호플이란?</a> · 문의 eunhaebleu@naver.com · © 2026 오호플</p></footer></div></body></html>`;
 const card = w => { const T = D.TYPES[w.type], t = thumb(w);
-  return `<a class="item" href="/w/${w.id}/">${t ? `<img src="${t}" alt="${esc(w.name)} 첫 화면" loading="lazy" width="640" height="480">` : `<div class="ph" style="background:${COLORS[w.type]}">${esc(w.name.replace(/[^가-힣A-Za-z0-9]/g,'').slice(0,1))}</div>`}<b>${esc(w.name)}</b><span>${T.ko} · ${esc(w.desc.slice(0, 46))}${w.desc.length > 46 ? '…' : ''}</span></a>`; };
+  return `<a class="item" href="/w/${w.id}/">${t ? `<img src="${t}" alt="${esc(w.name)} 첫 화면 · 오호플" loading="lazy" width="640" height="480">` : `<div class="ph" style="background:${COLORS[w.type]}">${esc(w.name.replace(/[^가-힣A-Za-z0-9]/g,'').slice(0,1))}</div>`}<b>${esc(w.name)}</b><span>${T.ko} · ${esc(w.desc.slice(0, 46))}${w.desc.length > 46 ? '…' : ''}</span></a>`; };
 
 fs.rmSync(path.join(ROOT, 'w'), {recursive:true, force:true});
 for (const w of works) {
@@ -87,7 +87,7 @@ for (const w of works) {
   const related = works.filter(x => x.type === w.type && x.id !== w.id).slice(0, 6);
   const body = `<p class="crumb"><a href="/">오호플</a> › <a href="/works/">작품 목록</a> › <a href="/works/${SLUG[w.type]}/">${T.ko}</a></p>
 <h1>${esc(w.name)}</h1><div class="chips"><span class="chip">${T.ko}</span><span class="chip">${esc(PLACE(w))}</span>${w.featured ? '<span class="chip">이번 주 광장</span>' : ''}</div>
-${thumb(w) ? `<img class="shot" src="${thumb(w)}" alt="${esc(w.name)} 첫 화면: ${esc(w.desc.slice(0, 60))}" width="640" height="480">` : ''}
+${thumb(w) ? `<img class="shot" src="${thumb(w)}" alt="오호플이 고른 ${esc(w.name)} 첫 화면: ${esc(w.desc.slice(0, 60))}" width="640" height="480">` : ''}
 <p class="lead">${esc(w.desc)}</p>
 <div class="btns"><a class="btn" href="${esc(w.url)}" rel="noopener" target="_blank">${esc(w.name)} 열기 ↗</a><a class="btn ghost" href="/#w-${w.id}">3D 마을에서 보기</a></div>
 <h2>한눈에 보기</h2><dl><dt>종류</dt><dd>${T.ko}</dd><dt>마을 위치</dt><dd>${esc(PLACE(w))}</dd><dt>주소</dt><dd>${esc(hostOf(w.url))}</dd>${w.share ? `<dt>오호플 추천</dt><dd>${esc(w.share)}</dd>` : ''}${w.note ? `<dt>알아둘 점</dt><dd>${esc(w.note)}</dd>` : ''}</dl>
@@ -121,7 +121,7 @@ for (const p of posts) {
     ...(ids.length?[{'@type':'ItemList','name':p.title,'itemListElement':ids.map((id,i)=>({'@type':'ListItem','position':i+1,'url':pageUrl(pick(id)),'name':pick(id).name}))}]:[]),
     ...(p.faq&&p.faq.length?[{'@type':'FAQPage','mainEntity':p.faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))}]:[])]};
   const sec = s => `<h2>${esc(s.h)}</h2>` + (s.text ? s.text.map(t => `<p>${esc(t)}</p>`).join('') : '') + (s.picks ? s.picks.filter(([id]) => pick(id)).map(([id, line]) => { const w = pick(id), t = thumb(w);
-    return `<article class="pick"><h3><a href="/w/${w.id}/">${esc(w.name)}</a> <small class="chip">${D.TYPES[w.type].ko}</small></h3>${t ? `<a href="/w/${w.id}/"><img class="shot" src="${t}" alt="${esc(w.name)} 첫 화면" loading="lazy" width="640" height="480"></a>` : ''}<p>${esc(w.desc)}</p>${line ? `<p><b>오호플 한 줄</b> ${esc(line)}</p>` : ''}${w.note ? `<p class="crumb">알아둘 점: ${esc(w.note)}</p>` : ''}<div class="btns"><a class="btn" href="${esc(w.url)}" rel="noopener" target="_blank">열기 ↗</a><a class="btn ghost" href="/w/${w.id}/">자세히</a></div></article>`; }).join('') : '');
+    return `<article class="pick"><h3><a href="/w/${w.id}/">${esc(w.name)}</a> <small class="chip">${D.TYPES[w.type].ko}</small></h3>${t ? `<a href="/w/${w.id}/"><img class="shot" src="${t}" alt="${esc(w.name)} 첫 화면 · 오호플" loading="lazy" width="640" height="480"></a>` : ''}<p>${esc(w.desc)}</p>${line ? `<p><b>오호플 한 줄</b> ${esc(line)}</p>` : ''}${w.note ? `<p class="crumb">알아둘 점: ${esc(w.note)}</p>` : ''}<div class="btns"><a class="btn" href="${esc(w.url)}" rel="noopener" target="_blank">열기 ↗</a><a class="btn ghost" href="/w/${w.id}/">자세히</a></div></article>`; }).join('') : '');
   const near = posts.filter(x => x.slug !== p.slug).slice(0, 4);
   const body = `<p class="crumb"><a href="/">오호플</a> › <a href="/posts/">발견 노트</a> › ${esc(p.tag)}</p><h1>${esc(p.title)}</h1><p class="crumb"><time datetime="${p.date}">${kdate(p.date)}</time> · 오호플</p>
 ${p.intro.map(t => `<p class="lead">${esc(t)}</p>`).join('')}${p.sections.map(sec).join('')}${p.outro ? `<p>${esc(p.outro)}</p>` : ''}
@@ -183,7 +183,7 @@ fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="
 
 // 공통: 작품 소개 블록
 const pickBlock = ([id, line]) => { const w = byIdW[id]; if (!w) return ''; const t = thumb(w);
-  return `<article class="pick"><h3><a href="/w/${w.id}/">${esc(w.name)}</a> <small class="chip">${D.TYPES[w.type].ko}</small></h3>${t ? `<a href="/w/${w.id}/"><img class="shot" src="${t}" alt="${esc(w.name)} 첫 화면" loading="lazy" width="640" height="480"></a>` : ''}<p>${esc(w.desc)}</p>${line ? `<p><b>오호플 한 줄</b> ${esc(line)}</p>` : ''}${w.note ? `<p class="crumb">알아둘 점: ${esc(w.note)}</p>` : ''}<div class="btns"><a class="btn" href="${esc(w.url)}" rel="noopener" target="_blank">열기 ↗</a><a class="btn ghost" href="/w/${w.id}/">자세히</a></div></article>`; };
+  return `<article class="pick"><h3><a href="/w/${w.id}/">${esc(w.name)}</a> <small class="chip">${D.TYPES[w.type].ko}</small></h3>${t ? `<a href="/w/${w.id}/"><img class="shot" src="${t}" alt="${esc(w.name)} 첫 화면 · 오호플" loading="lazy" width="640" height="480"></a>` : ''}<p>${esc(w.desc)}</p>${line ? `<p><b>오호플 한 줄</b> ${esc(line)}</p>` : ''}${w.note ? `<p class="crumb">알아둘 점: ${esc(w.note)}</p>` : ''}<div class="btns"><a class="btn" href="${esc(w.url)}" rel="noopener" target="_blank">열기 ↗</a><a class="btn ghost" href="/w/${w.id}/">자세히</a></div></article>`; };
 const faqLd = faq => faq && faq.length ? [{'@type':'FAQPage','mainEntity':faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))}] : [];
 const faqHtml = faq => faq && faq.length ? `<h2>자주 묻는 질문</h2><div class="faq">${faq.map(([q, a]) => `<details open><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>` : '';
 

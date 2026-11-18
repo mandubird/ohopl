@@ -33,7 +33,8 @@ const postsFor = id => posts.filter(p => (p.sections || []).some(s => (s.picks |
 const kdate = d => { const [y, m, dd] = d.split('-').map(Number); return `${y}년 ${m}월 ${dd}일`; };
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
-const CSS = `.picker{display:grid;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:16px 0}.picker fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}.picker legend{font-weight:700;margin-bottom:6px;width:100%}.picker label{border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:14px}.picker label:has(input:checked){background:var(--accent);color:#fff;border-color:var(--accent)}.picker input{position:absolute;opacity:0;pointer-events:none}
+const CSS = `.facts{display:grid;gap:0;margin:12px 0 20px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}.facts div{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:9px 14px;border-top:1px solid var(--line)}.facts div:first-child{border-top:0}.facts dt{font-weight:700;font-size:14px}.facts dd{margin:0;font-size:14px;color:var(--fg)}
+.picker{display:grid;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:16px 0}.picker fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}.picker legend{font-weight:700;margin-bottom:6px;width:100%}.picker label{border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:14px}.picker label:has(input:checked){background:var(--accent);color:#fff;border-color:var(--accent)}.picker input{position:absolute;opacity:0;pointer-events:none}
 .answer{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:12px 16px}.tbl{overflow-x:auto;margin:16px 0}.tbl table{border-collapse:collapse;width:100%;min-width:420px;font-size:14px}.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}.tbl thead th{background:var(--card)}
 .mpicks{display:grid;gap:12px;margin:12px 0 20px}.mpick{display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;text-decoration:none;color:var(--fg)}.mpick img{width:100%;height:auto;border-radius:10px}.mpick p{margin:4px 0 0;color:var(--muted);font-size:14px}@media(max-width:480px){.mpick{grid-template-columns:110px 1fr}}.rules{display:grid;gap:12px;padding-left:20px}.rules p{margin:4px 0 0;color:var(--muted)}.mlist{list-style:none;padding:0;display:grid;gap:12px}.mlist p{margin:4px 0 0;color:var(--muted)}
 .fhub{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 16px}.fhub div{display:flex;flex-direction:column;gap:4px}.fhub b{font-size:13px;margin-bottom:2px}.fhub a{font-size:13px;color:var(--muted);text-decoration:none}.fhub a:hover{text-decoration:underline}
@@ -151,6 +152,21 @@ ${near.length ? `<h2>다른 발견 노트</h2><ul>${near.map(x => `<li><a href="
 
 
 
+
+// 오호플 한눈에 보기: AI가 그대로 옮겨 쓰기 좋은 사실 목록 (소개 페이지 맨 위 + 첫 페이지)
+const FACTS = () => [
+  ['정식 이름', '오호플 (OHOPL · 오늘의 호기심 플레이)'],
+  ['한 줄 소개', 'AI로 만든 게임·웹 도구·신기한 웹사이트를 직접 써 보고 골라 모은 3D 창작 마을'],
+  ['주소', 'ohopl.com'],
+  ['시작', '2026년 11월'],
+  ['소개한 작품', `${works.length}곳 (놀이 ${works.filter(w=>w.type==='PLAY').length} · 도구 ${works.filter(w=>w.type==='USE').length} · 만들기 ${works.filter(w=>w.type==='CREATE').length} · 배우기 ${works.filter(w=>w.type==='LEARN').length} · 탐험 ${works.filter(w=>w.type==='EXPLORE').length})`],
+  ['이용', '무료 · 회원가입 없음 · 앱 설치 없이 휴대폰·PC 브라우저에서'],
+  ['마을 구성', '분수 광장 · 큰길 · 놀이 섬 · 도구 섬 · 서쪽·동쪽 골목 · 성소 언덕'],
+  ['고르는 기준', '운영자가 직접 열어 확인한 작품만, 제작자가 원하면 바로 내림'],
+  ['운영', '블루루반 (문의 eunhaebleu@naver.com)'],
+  ['유튜브', '오호아재 — 오호플 작품을 직접 해 보는 채널'],
+];
+const factsHtml = () => `<dl class="facts">${FACTS().map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
 let SITE_FAQ = [];
 const SHOTS = [
   ['village-aerial','오호플 3D 창작 마을 전체 모습 — 분수 광장과 골목, 놀이 섬으로 가는 무지개 다리'],
@@ -176,6 +192,7 @@ const SHOTS = [
     {'@type':'FAQPage','mainEntity':faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))}]};
   const body = `<main><h1>오호플이란?</h1>
 <p class="lead"><b>오호플(OHOPL · 오늘의 호기심 플레이)</b>은 AI로 만든 게임, 웹 도구, 신기한 웹사이트를 운영자가 직접 써 보고 골라 소개하는 <b>3D 창작 마을</b>이에요. 동물 캐릭터로 마을을 걸으며 가게 문을 열면 작품이 열려요.</p>
+<h2>오호플 한눈에 보기</h2>${factsHtml()}
 <div class="shots">${SHOTS.map(([f,alt])=>`<figure><img src="/img/ohopl-${f}.webp" alt="${esc(alt)}" width="1200" height="900" loading="lazy"><figcaption>${esc(alt)}</figcaption></figure>`).join('')}</div>
 <h2>이럴 때 오호플</h2><div class="moods">${(D.MOODS||[]).map(m=>`<a href="${m.href}"><span>${m.e}</span><b>${esc(m.t)}</b><small>${esc(m.s)}</small></a>`).join('')}</div>
 <h2>오호플이 작품을 고르는 방법</h2>${TRUST}<p><a href="/about/policy/">큐레이션 원칙 자세히 보기 →</a></p>
@@ -418,7 +435,7 @@ console.log(`pages ${works.length}, base ${BASE}`);
   idx = idx.replace(/<!--seo-ld-->[\s\S]*?<!--\/seo-ld-->\n?/,'').replace(/<!--seo-list-->[\s\S]*?<!--\/seo-list-->\n?/,'');
   const ldBlock = `<!--seo-ld--><link rel="canonical" href="${BASE}/">\n<script type="application/ld+json">${JSON.stringify(siteLd).replace(/</g,'\\u003c')}</script><!--/seo-ld-->\n`;
   idx = idx.replace('<link rel="preconnect"', ldBlock + '<link rel="preconnect"');
-  const list = `<!--seo-list--><noscript><nav aria-label="오호플 작품 목록"><h1>오호플 · 오늘의 호기심 플레이</h1><p>AI로 만든 게임, 도구, 신기한 웹서비스가 모인 3D 창작 마을이에요.</p><ul>${works.map(w=>`<li><a href="/w/${w.id}/">${esc(w.name)}</a> — ${esc(w.desc)}</li>`).join('')}</ul><p><a href="/works/">작품 전체 목록</a> · <a href="/posts/">발견 노트</a></p>${posts.length?`<ul>${posts.map(p=>`<li><a href="/posts/${p.slug}/">${esc(p.title)}</a></li>`).join('')}</ul>`:''}</nav></noscript><!--/seo-list-->\n`;
+  const list = `<!--seo-list--><noscript><nav aria-label="오호플 작품 목록"><h1>오호플 · 오늘의 호기심 플레이</h1><p>AI로 만든 게임, 도구, 신기한 웹서비스가 모인 3D 창작 마을이에요.</p>${factsHtml()}<ul>${works.map(w=>`<li><a href="/w/${w.id}/">${esc(w.name)}</a> — ${esc(w.desc)}</li>`).join('')}</ul><p><a href="/works/">작품 전체 목록</a> · <a href="/posts/">발견 노트</a></p>${posts.length?`<ul>${posts.map(p=>`<li><a href="/posts/${p.slug}/">${esc(p.title)}</a></li>`).join('')}</ul>`:''}</nav></noscript><!--/seo-list-->\n`;
   idx = idx.replace(/<body>\n?/, m => m + list);
   fs.writeFileSync(path.join(ROOT,'index.html'), idx);
 }

@@ -16,7 +16,7 @@ const BASE = (process.argv[2] || process.env.SITE_URL || 'https://ohopl.com').re
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const a = html.indexOf('const TYPES = {'), b = html.indexOf('const VACANTS');
 const g = html.indexOf('const GALLERY = {'), ge = html.indexOf('};', g) + 2;
-const code = html.slice(a, b) + '\n' + html.slice(g, ge) + '\n;({TYPES, WORKS, HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS, PLACES, THUMBS:[...THUMBS], GALLERY, MOODS: typeof MOODS!=="undefined"?MOODS:[]})';
+const code = html.slice(a, b) + '\n' + html.slice(g, ge) + '\n;({TYPES, WORKS, HIDDEN_WORKS, FAITH_WORKS, TOOL_WORKS, PLACES, THUMBS:[...THUMBS], GALLERY, MOODS: typeof MOODS!=="undefined"?MOODS:[], PAST_WORKS: typeof PAST_WORKS!=="undefined"?PAST_WORKS:[]})';
 const D = vm.runInNewContext(code, {});
 const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); // 한국 날짜
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -109,6 +109,21 @@ ${related.length ? `<h2>비슷한 ${T.ko} 작품</h2><div class="grid">${related
   fs.writeFileSync(path.join(ROOT, 'w', w.id, 'index.html'), head(title, desc, url, img, ld) + body + TRUST + foot);
 }
 
+
+// 지난 가게: 마을에서 뺀 작품. 작품 페이지는 '문 닫음' 안내로 남겨요.
+const past = (D.PAST_WORKS || []);
+for (const w of past) {
+  const T = D.TYPES[w.type], url = pageUrl(w), img = thumb(w) || `${BASE}/og-image.png`;
+  const alt = works.filter(x => x.type === w.type).slice(0, 6);
+  const ld = {'@context':'https://schema.org','@type':'WebPage','@id':url,'url':url,'name':`${w.name} — 지난 가게 | 오호플`,'inLanguage':'ko','isPartOf':{'@id':BASE+'/#website'},'dateModified':today};
+  const body = `<p class="crumb"><a href="/">오호플</a> › <a href="/works/">작품 목록</a> › 지난 가게</p><h1>${esc(w.name)}</h1>
+<p class="answer"><b>이 가게는 ${kdate(w.past)}에 오호플 마을에서 문을 닫았어요.</b> ${esc(w.pastWhy || '')}</p><p>${esc(w.desc)}</p>
+<h2>비슷한 ${esc(T.ko)} 작품</h2><ul>${alt.map(x => `<li><a href="/w/${x.id}/">${esc(x.name)}</a> — ${esc(x.desc)}</li>`).join('')}</ul>
+<p class="btns"><a class="btn" href="/works/${SLUG[w.type]}/">${esc(T.ko)} 전체 보기</a><a class="btn ghost" href="/">3D 마을 들어가기</a></p>`;
+  fs.mkdirSync(path.join(ROOT, 'w', w.id), {recursive: true});
+  fs.writeFileSync(path.join(ROOT, 'w', w.id, 'index.html'), head(`${w.name} — 지난 가게 | 오호플`, `${w.name}은(는) 오호플 마을에서 문을 닫은 가게예요. 비슷한 ${T.ko} 작품을 소개해요.`, url, img, ld) + body + foot);
+}
+
 // 작품 목록
 const order = ['PLAY', 'USE', 'CREATE', 'LEARN', 'EXPLORE'];
 const listLd = {'@context':'https://schema.org','@graph':[{'@type':'CollectionPage','@id':BASE+'/works/','url':BASE+'/works/','name':'오호플 작품 전체 목록','inLanguage':'ko','isPartOf':{'@id':BASE+'/#website'}},
@@ -116,7 +131,7 @@ const listLd = {'@context':'https://schema.org','@graph':[{'@type':'CollectionPa
 fs.mkdirSync(path.join(ROOT, 'works'), {recursive:true});
 fs.writeFileSync(path.join(ROOT, 'works', 'index.html'), head('오호플 작품 전체 목록 — AI로 만든 게임·도구·웹서비스', `오호플이 직접 써 보고 고른 ${works.length}개 작품. 놀이, 도구, 만들기, 배우기, 탐험으로 나눠 봤어요. 모두 설치 없이 브라우저에서 바로.`, BASE+'/works/', BASE+'/og-image.png', listLd)
   + `<h1>작품 전체 목록</h1><p class="lead">오호플이 직접 써 보고 고른 ${works.length}개 작품이에요. 모두 설치 없이 브라우저에서 바로 열 수 있어요.</p><p class="crumb">${today} 업데이트</p>`
-  + order.map(k => { const L = works.filter(w => w.type === k); return L.length ? `<h2 id="${SLUG[k]}"><a href="/works/${SLUG[k]}/">${D.TYPES[k].ko}</a> <small>${L.length}개 · <a href="/works/${SLUG[k]}/">모아 보기</a></small></h2><div class="grid">${L.map(card).join('')}</div>` : ''; }).join('') + foot);
+  + order.map(k => { const L = works.filter(w => w.type === k); return L.length ? `<h2 id="${SLUG[k]}"><a href="/works/${SLUG[k]}/">${D.TYPES[k].ko}</a> <small>${L.length}개 · <a href="/works/${SLUG[k]}/">모아 보기</a></small></h2><div class="grid">${L.map(card).join('')}</div>` : ''; }).join('') + (past.length ? `<h2>지난 가게</h2><p>마을에서 문을 닫은 가게예요. 원본이 바뀌거나 사라지면 이곳으로 옮겨요.</p><ul>${past.map(w=>`<li><a href="/w/${w.id}/">${esc(w.name)}</a> — ${kdate(w.past)} 문 닫음</li>`).join('')}</ul>` : '') + foot);
 
 // 발견 노트(블로그)
 fs.rmSync(path.join(ROOT, 'posts'), {recursive:true, force:true});

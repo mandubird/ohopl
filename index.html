@@ -3339,9 +3339,10 @@ function mergeStable(){
   const skip=new Set(), mark=o=>{ if(o && o.traverse) o.traverse(x=>skip.add(x)); };
   Object.values(seasonGroups).forEach(mark); mark(fountain.userData.star); mark(fountain.userData.spout);
   if(cuckoo) [cuckoo.bird,cuckoo.door,cuckoo.hr,cuckoo.min].forEach(mark);
+  mark(player.model); npcs.forEach(n=>mark(n.m)); coins.forEach(c=>mark(c.g)); birds.forEach(mark); floaters.forEach(mark); mark(marker);  // 움직이는 캐릭터·물건은 절대 합치지 않아요
   signs.forEach(x=>mark(x.m)); labLeds.forEach(mark); labWalkers.forEach(w=>mark(w.r)); bridgeTiles.forEach(T=>mark(T.m)); bridgePosts.forEach(mark);
   const shown=o=>{ for(let p=o;p;p=p.parent){ if(!p.visible) return false; } return true; };
-  const buckets=new Map(), v=new THREE.Vector3();
+  const buckets=new Map(), v=new THREE.Vector3(), b_snap=new Map();
   scene.traverse(o=>{
     if(!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material) || skip.has(o)) return;
     const m=o.material; if(m.transparent || !o.frustumCulled || !o.geometry.attributes.position || o.geometry.morphAttributes.position) return;
@@ -3352,13 +3353,13 @@ function mergeStable(){
     const wid=o.userData.wid||'';
     const key=m.uuid+'|'+(o.castShadow?1:0)+(o.receiveShadow?1:0)+'|'+wid+'|'+o.renderOrder+'|'+Math.floor(v.x/36)+','+Math.floor(v.z/36);
     if(!buckets.has(key)) buckets.set(key,{m, cs:o.castShadow, rs:o.receiveShadow, wid, ro:o.renderOrder, uv:needUv, col:needCol, list:[]});
-    buckets.get(key).list.push(o);
+    buckets.get(key).list.push(o); b_snap.set(o, was);
   });
   stableSnap=null;
   const jobs=[...buckets.values()].filter(b=>b.list.length>=2); let merged=0;
   // 한 번에 다 합치면 느린 폰에서 터치가 0.5초 넘게 막혀요 → 조금씩 나눠서
-  const step=()=>{ const t0=performance.now();
-    while(jobs.length && performance.now()-t0<8){ const b=jobs.shift(); if(b.list.some(o=>!o.parent)) continue; merged+=mergeBucket(b); }
+  const step=()=>{ const t0=performance.now(); scene.updateMatrixWorld();  /* 그사이 움직인 건 건너뜀 */
+    while(jobs.length && performance.now()-t0<8){ const b=jobs.shift(); if(b.list.some(o=>!o.parent || !shown(o) || !b_snap.get(o).equals(o.matrixWorld))) continue; merged+=mergeBucket(b); }
     window.__merged=merged;
     if(jobs.length) setTimeout(step,0); };
   step(); return merged;

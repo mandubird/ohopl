@@ -984,9 +984,9 @@ function shingleTex(color, rx, ry){
 function texMat(map){ const k='tm'+map.uuid; if(!matCache[k]) matCache[k]=new THREE.MeshPhongMaterial({map, flatShading:true, shininess:4}); return matCache[k]; }
 function tmesh(geo, map){ const m=new THREE.Mesh(geo, texMat(map)); m.castShadow=true; m.receiveShadow=true; return m; }
 
-function makeShop(work, x, z, faceX, faceZ, size){
+function makeShop(work, x, z, faceX, faceZ, size, roofTint){
   const T = TYPES[work.type];
-  const roofColor = work.vacant ? '#9aa0b4' : T.color;
+  const roofColor = work.vacant ? '#9aa0b4' : (roofTint || T.color);
   const s = size==='big' ? {w:6.4,d:5.4,h:4.4} : size==='mid' ? {w:5.6,d:4.8,h:3.9} : {w:4.4,d:4.0,h:3.2};
   const g = new THREE.Group();
   // 기초돌과 벽
@@ -1774,9 +1774,18 @@ let carousel=null;
   stonePath(cx+PLAY_R-2, cz, cx+10.6, cz, 3.4, {dots:true});
   // 가게: 놀이 섬 작품 먼저, 남은 자리는 빈 가게
   const list=WORKS.filter(w=>w.zone==='놀이 섬').concat(PLAY_VACANTS);
+  // 놀이 섬은 집마다 지붕 색이 달라요 (놀이공원 느낌)
+  const ROOFS=['#ef4680','#f28c17','#ffc83d','#13a17d','#2b8fd6','#7b5cff','#e8433a','#18b5c9','#9b4fd6','#5bbf3a','#ff7a59','#3d6bd6'];
   list.forEach((w,i)=>{ const sl=PLAY_SLOTS[i]; if(!sl){ if(!w.vacant) console.warn('play island full', w.id); return; }
-    const x=cx+sl[0], z=cz+sl[1]; makeShop(w, x, z, cx, cz, 'small');
+    const x=cx+sl[0], z=cz+sl[1]; makeShop(w, x, z, cx, cz, 'small', ROOFS[(i*5)%ROOFS.length]);
     const d=Math.hypot(sl[0],sl[1]), ux=sl[0]/d, uz=sl[1]/d; stonePath(cx+ux*10.4, cz+uz*10.4, cx+ux*(d-4.3), cz+uz*(d-4.3), 1.7, {}); entryPad(cx+ux*(d-4.1), cz+uz*(d-4.1), 1.4); });
+  // 가로등: 회전목마 마당 둘레와 바깥 산책로를 따라 (가게 길·다리 길은 피해서)
+  { const spokes=PLAY_SLOTS.map(([x,z])=>Math.atan2(z,x)).concat([0]);
+    const clear=(a,r)=>spokes.every(b=>{ let d=Math.abs(a-b)%(Math.PI*2); if(d>Math.PI) d=Math.PI*2-d; return d*r>2.6; });
+    const ring=(r,n,off)=>{ for(let k=0;k<n;k++){ let a=off+k/n*Math.PI*2, ok=false;
+      for(let j=0;j<8 && !ok;j++){ const t=a+(j%2?1:-1)*Math.ceil(j/2)*0.04; if(clear(t,r)){ a=t; ok=true; } }
+      if(ok) makeLamp(cx+Math.cos(a)*r, cz+Math.sin(a)*r); } };
+    ring(11.7, 8, Math.PI/8); ring(40.8, 14, 0.1); }
   // 나무·풍선 장식
   // 바깥 산책로: 가운데 고리와 세 번째 고리 사이를 한 바퀴 도는 돌길
   { const N=72; for(let k=0;k<N;k++){ const a1=k/N*Math.PI*2, a2=(k+1)/N*Math.PI*2; stonePath(cx+Math.cos(a1)*38.5, cz+Math.sin(a1)*38.5, cx+Math.cos(a2)*38.5, cz+Math.sin(a2)*38.5, 2.2, {}); } }
@@ -1933,6 +1942,7 @@ const plazaLights=[];
 if(!isTouch){ /* 휴대폰에서는 실제 조명 대신 바닥 빛 웅덩이로만 밝혀요(가벼움) */
 for(let i=0;i<4;i++){ const a=i/4*Math.PI*2+Math.PI/4; const L=new THREE.PointLight('#ffc978',0,22,1.4); L.position.set(Math.cos(a)*13.5,4,Math.sin(a)*13.5); scene.add(L); plazaLights.push(L); }
 [[0,-30],[0,30],[-30,4],[30,-4]].forEach(([x,z])=>{ const L=new THREE.PointLight('#ffc978',0,24,1.4); L.position.set(x,4.5,z); scene.add(L); plazaLights.push(L); });
+for(let i=0;i<4;i++){ const a=i/4*Math.PI*2+Math.PI/4; const L=new THREE.PointLight('#ffc978',0,24,1.4); L.position.set(PLAY_C.x+Math.cos(a)*12,4.5,PLAY_C.z+Math.sin(a)*12); scene.add(L); plazaLights.push(L); }  // 놀이 섬 회전목마 마당
 }
 
 

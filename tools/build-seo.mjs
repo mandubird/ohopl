@@ -66,6 +66,7 @@ footer{margin-top:44px;font-size:13px;color:var(--muted)}
 const COLORS = {PLAY:'#7b5cff', USE:'#13a17d', CREATE:'#ef4680', LEARN:'#2b8fd6', EXPLORE:'#f28c17'};
 const head = (title, desc, url, img, ld) => `<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0717185892763061" crossorigin="anonymous"></script>
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${url}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="오호플"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${img}"><meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${img}">

@@ -528,8 +528,9 @@ button{cursor:pointer}
 })();
 </script>
 <script id="appsrc" type="text/plain">
-(function(){
+(async function(){
 "use strict";
+const __y=()=>new Promise(r=>{ if(window.scheduler&&scheduler.yield) scheduler.yield().then(r); else { const c=new MessageChannel(); c.port1.onmessage=()=>r(); c.port2.postMessage(0); } });  // 마을을 조금씩 지어서, 그사이 터치·클릭이 바로 처리되게
 
 /* ---------- 데이터 ---------- */
 const TYPES = {
@@ -801,7 +802,7 @@ function islandPieces(group, R, depth){
   return -1.2-bh;
 }
 const island = new THREE.Group(); scene.add(island);
-(function(){
+await __y(); (function(){
   const bottom = islandPieces(island, ISLAND_R, 52);
   const under = mesh(facet(new THREE.ConeGeometry(ISLAND_R*0.42, 26, 8, 2), 3, 'min'), '#7f2d15');
   under.rotation.x=Math.PI; under.position.set(16, bottom-34, -10); island.add(under);
@@ -853,7 +854,7 @@ flatSeg(0,-11,0,-57,6.9,'#a99e8b',0.08);
 flatSeg(-3.75,-12,-3.75,-56,0.5,'#8e96a8',0.18); flatSeg(3.75,-12,3.75,-56,0.5,'#8e96a8',0.18);
 pathLines.push({pts:[[0,-11],[0,-60]], w:7});
 flatSeg(0,11,0,58,4.6,'#a99e8b',0.08); pathLines.push({pts:[[0,11],[0,60]], w:5});
-(function(){
+await __y(); (function(){
   const T=[];
   for(let r=6.0; r<15.5; r+=1.12){ const n=Math.floor(Math.PI*2*r/1.16), off=Math.random();
     for(let i=0;i<n;i++){ const a=(i+off)/n*Math.PI*2; T.push([Math.cos(a)*r, Math.sin(a)*r, -a]); } }
@@ -1179,10 +1180,10 @@ makeGallery();
 
 // 광장: 분수 앞 노점 3개 + 둘레 가게 4개
 const feat = WORKS.filter(w=>w.featured);
-feat.forEach((w,i)=>{ const a=(45+90*i)*Math.PI/180; makePortal(w, Math.cos(a)*11.2, Math.sin(a)*11.2); });
+await __y(); feat.forEach((w,i)=>{ const a=(45+90*i)*Math.PI/180; makePortal(w, Math.cos(a)*11.2, Math.sin(a)*11.2); });
 const ringWorks = WORKS.filter(w=>w.zone==='광장' && !w.featured);
 const ringAngles=[-38,38,-142,142];
-ringWorks.forEach((w,i)=>{ const a=ringAngles[i]*Math.PI/180; const r=21;
+await __y(); ringWorks.forEach((w,i)=>{ const a=ringAngles[i]*Math.PI/180; const r=21;
   makeShop(w, Math.cos(a)*r, Math.sin(a)*r, 0, 0, 'mid'); });
 
 // 주변 작은 섬들
@@ -1195,7 +1196,7 @@ makeMiniIsland(-60, 26, -100, 6, 'stones');
 
 // 큰길: 양옆 3칸씩 (남는 자리는 입점 대기)
 const mainWorks = WORKS.filter(w=>w.zone==='큰길').concat(VACANTS);
-mainWorks.forEach((w,i)=>{ const side = i%2? 1 : -1; const row=Math.floor(i/2);
+await __y(); mainWorks.forEach((w,i)=>{ const side = i%2? 1 : -1; const row=Math.floor(i/2);
   const z = -19 - row*12; makeShop(w, side*9.2, z, 0, z, 'big'); });
 for(const lz of [-14,-25,-36,-47]) for(const lx of [-4.7,4.7]) makeLamp(lx, lz);
 makeBunting(-4.4,-14,4.4,-14,6.2); makeBunting(-4.4,-40,4.4,-40,6.2);
@@ -1216,8 +1217,8 @@ function placeAlley(curve, list){
     t=spot[4]+0.01; side=-spot[5];
   });
 }
-placeAlley(westAlley, WORKS.filter(w=>w.zone==='골목' && w.side==='west'));
-placeAlley(eastAlley, WORKS.filter(w=>w.zone==='골목' && w.side==='east'));
+await __y(); placeAlley(westAlley, WORKS.filter(w=>w.zone==='골목' && w.side==='west'));
+await __y(); placeAlley(eastAlley, WORKS.filter(w=>w.zone==='골목' && w.side==='east'));
 
 /* ---------- 숨은 가게 ---------- */
 const reserved=[]; // 무작위 나무가 덮지 않게 비워 둘 자리 [x,z,r]
@@ -1304,7 +1305,7 @@ function tileTrail(points, cols){
 }
 const ROAD_COLS=['#d9c9aa','#cbb894','#e2d3b5','#c4b08b','#d3c2a0'];
 const faithPath = tileTrail([[-3,36],[-10,35],[-17,35.5]], ROAD_COLS);
-const faithPath2 = tileTrail([[10,-53],[19,-51],[27,-47]], ['#d6d2c8','#c9c4b8','#e0dcd2','#bdb8ac']);
+await __y(); const faithPath2 = tileTrail([[10,-53],[19,-51],[27,-47]], ['#d6d2c8','#c9c4b8','#e0dcd2','#bdb8ac']);
 const faithPath3 = tileTrail([[3,40],[11,44],[18,47.5]], ['#cfc3a4','#bfb08c','#d9ceb2','#b5a582']);
 function faithDoor(id, g, x, z, fx, fz, doorDist, r, top){
   g.position.set(x,0,z); g.rotation.y=Math.atan2(fx-x, fz-z); scene.add(g); tagClick(g, id);
@@ -1671,7 +1672,7 @@ function buildHobbyTent(id,x,z,fx,fz){ // 깃발 단 취미 텐트
   indieDoor(id,g,x,z,fx,fz,3.4,2.7,5.4);
 }
 
-(function(){
+await __y(); (function(){
   const [cx,cz]=TL(0,0);
   const L=TL(-2,-25), C2=TL(21,-15), P=TL(22,15);
   buildAILab(L[0],L[1], cx,cz);
@@ -1728,7 +1729,7 @@ function bridgeGate(x, sub){
   for(const sz of [-1,1]) colliders.push({x, z:sz*(BRIDGE.hw+0.5), r:0.4});
   return g;
 }
-const gateA=bridgeGate(BRIDGE.x0-1.0,'발밑에 다리가 나타나요');
+await __y(); const gateA=bridgeGate(BRIDGE.x0-1.0,'발밑에 다리가 나타나요');
 const gateB=bridgeGate(BRIDGE.x1+0.6,'마을로 돌아가는 길'); gateB.rotation.y=Math.PI;
 // 유리 발판: 처음엔 안 보이고, 밟는 근처만 나타나요. 한 번 건넌 칸은 아주 희미하게 남아요
 const bridgeTiles=[], bridgePosts=[];
@@ -1744,7 +1745,7 @@ const bridgeTiles=[], bridgePosts=[];
 
 /* ---------- 놀이 섬 ---------- */
 let carousel=null;
-(function(){
+await __y(); (function(){
   const cx=PLAY_C.x, cz=PLAY_C.z;
   const g=new THREE.Group(); const bottom=islandPieces(g, PLAY_R, 40); g.position.set(cx,0,cz); scene.add(g);
   const under=mesh(facet(new THREE.ConeGeometry(PLAY_R*0.4, 18, 8, 2), 3, 'min'), '#7f2d15'); under.rotation.x=Math.PI; under.position.set(5, bottom-24, -6); g.add(under);
@@ -1805,7 +1806,7 @@ let carousel=null;
     const bl=mesh(new THREE.SphereGeometry(0.8,10,8), cols[k%cols.length]); bl.scale.y=1.2; bl.position.set(bx,4.6,bz); scene.add(bl); }
 })();
 // 무지개 나무다리 (늘 보이는 다리)
-(function(){
+await __y(); (function(){
   const cols=['#ef4680','#f28c17','#ffc83d','#13a17d','#2b8fd6','#7b5cff'];
   let k=0; for(let x=PBRIDGE.x0-1; x<=PBRIDGE.x1+1.5; x+=1.2){ const pl=mesh(new THREE.BoxGeometry(1.0,0.2,PBRIDGE.hw*2+0.3), cols[k++%cols.length]); pl.position.set(x,0.05,0); pl.castShadow=false; scene.add(pl); }
   for(const sz of [-1,1]){ const rail=mesh(new THREE.BoxGeometry(PBRIDGE.x1-PBRIDGE.x0+3,0.14,0.14),'#f6efe0'); rail.position.set((PBRIDGE.x0+PBRIDGE.x1)/2,1.0,sz*(PBRIDGE.hw+0.2)); scene.add(rail);
@@ -1934,7 +1935,7 @@ function scatterPebbles(spots){
   pts.forEach((p,i)=>{ d.position.set(p[0],0.06,p[1]); d.rotation.set(0,Math.random()*6,0); d.scale.set(p[2]*1.2,p[2]*0.5,p[2]); d.updateMatrix(); inst.setMatrixAt(i,d.matrix); c.set(cols[i%cols.length]); inst.setColorAt(i,c); });
   inst.receiveShadow=true; scene.add(inst);
 }
-{ const spots=[]; let tr=0; while(spots.length<75 && tr<3000){ tr++; const a=Math.random()*Math.PI*2, r=19+Math.random()*(ISLAND_R-25); const x=Math.cos(a)*r, z=Math.sin(a)*r;
+await __y(); { const spots=[]; let tr=0; while(spots.length<75 && tr<3000){ tr++; const a=Math.random()*Math.PI*2, r=19+Math.random()*(ISLAND_R-25); const x=Math.cos(a)*r, z=Math.sin(a)*r;
     if(x>BRIDGE.x0-10 && Math.abs(z)<5) continue; if(clearSpot(x,z,1.0)) spots.push([x,z]); }
   scatterPebbles(spots); if(window.__toolPebbles) scatterPebbles(window.__toolPebbles); }
 for(let i=0;i<8;i++){ const a=i/8*Math.PI*2+Math.PI/8; makeLamp(Math.cos(a)*15.3, Math.sin(a)*15.3); }
@@ -2314,7 +2315,7 @@ async function loadComments(id, list){
       if(isMine){ rb.remove(); hd.appendChild(el('em','cm-mine','내 후기')); } else hd.appendChild(rb); d.append(hd, el('p',null,c.body)); list.appendChild(d); });
   }catch(e){ list.innerHTML=''; list.appendChild(el('p','cm-note','후기를 불러오지 못했어요.')); }
 }
-loadSocial();
+await __y(); loadSocial();
 
 function openPlace(w){
   $('cardSocial').hidden=true;
@@ -2533,7 +2534,7 @@ $('infoBtn').addEventListener('click', ()=>{ location.hash='about'; });
 
 /* ---------- 처음 온 사람 가이드 ---------- */
 const GUIDE = [
-  {art:'오호!', step:'처음 왔나요?', title:'오호플에 온 걸 환영해요', html:'<p>동물 친구가 되어 마을을 걸으며 AI로 만든 게임, 도구, 신기한 사이트를 발견하는 곳이에요. 가입도 설치도 필요 없어요.</p>'},
+  {art:'오호!', step:'처음 왔나요?', title:'오호플에 온 걸 환영해요', html:'<p>동물 친구가 되어 마을을 걸으며</p><p>AI로 만든 게임, 도구, 신기한 사이트를 발견하는 곳이에요.</p><p>가입도 설치도 필요 없어요.</p>'},  /* 문단을 나눠 두면 첫 화면 속도(LCP)가 안내창 글로 늦게 잡히지 않아요 */
   {art:'🐾', step:'걷기', title:'마을을 걸어 봐요', html:()=> isTouch
     ? '<ul><li>왼쪽 아래 동그라미를 끌면 걸어요</li><li>화면을 끌면 둘러봐요</li><li>오른쪽 아래 버튼으로 점프해요</li></ul>'
     : '<ul><li><b>W A S D</b> 또는 방향키로 걸어요 (한/영 상관없어요)</li><li>화면을 끌면 둘러보고, <b>스페이스</b>로 점프해요</li><li>바닥의 코인을 주우면 오른쪽 위에 쌓여요</li></ul>'},
@@ -3209,7 +3210,7 @@ function watchPerf(rawDt){
     if(fps<40) setQuality(fps<15 ? 2 : quality+1); else perf.checks=6; }
 }
 function resize(){ renderer.setSize(innerWidth, innerHeight, false); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); }
-addEventListener('resize', resize); resize();
+addEventListener('resize', resize); await __y(); resize();
 
 function collide(o, rad){
   for(const c of colliders){ const dx=o.x-c.x, dz=o.z-c.z, d=Math.hypot(dx,dz), m=c.r+rad;
@@ -3220,7 +3221,7 @@ function animateLegs(model, t, moving){
   model.children.forEach(ch=>{ if(ch.userData.leg){ ch.rotation.x = moving ? Math.sin(t*12)*0.6*ch.userData.leg : 0; } });
 }
 
-let nearId=null, last=performance.now(), enterT=0, enteredId=null;
+await __y(); let nearId=null, last=performance.now(), enterT=0, enteredId=null;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const camPos=new THREE.Vector3(), camLook=new THREE.Vector3(player.x,2,player.z);
 camYaw = 0;
@@ -3339,7 +3340,41 @@ function frame(now){
 /* ---------- 시작 ---------- */
 function start(){
   camera.position.set(player.x, 18, player.z+22);
-  try{ renderer.compile(scene,camera); }catch(e){}   // 셰이더를 안내 화면 뒤에서 미리 준비 → 첫 터치가 안 막혀요
+  warmup(begin);
+}
+/* 셰이더·그림 재료를 안내 화면 뒤에서 하나씩 미리 준비 → 마을이 보인 뒤 첫 터치가 안 막혀요.
+   같은 조명·안개를 가진 임시 장면에서 재질별로 한 번씩 만들어 두면, 실제 장면은 만들어 둔 셰이더를 그대로 써요. */
+function warmup(done){
+  let jobs=[], tmp;
+  try{
+    tmp=new THREE.Scene(); tmp.fog=scene.fog;
+    scene.traverse(o=>{ if(o.isLight){ const L=o.clone(false); L.castShadow=o.castShadow; tmp.add(L); if(L.target) tmp.add(L.target); } });
+    const seen=new Set();
+    scene.traverse(o=>{ if(!(o.isMesh||o.isPoints||o.isLine||o.isSprite) || !o.material) return;
+      const ms=Array.isArray(o.material)?o.material:[o.material]; const key=ms.map(m=>m.uuid).join()+(o.isInstancedMesh?'i':'');
+      if(seen.has(key)) return; seen.add(key); jobs.push(o); });
+  }catch(e){ try{ renderer.compile(scene,camera); }catch(_){} return done(); }
+  const proxy=o=>{ let p;
+    if(o.isInstancedMesh) p=new THREE.InstancedMesh(o.geometry,o.material,1);
+    else if(o.isSprite) p=new THREE.Sprite(o.material);
+    else if(o.isPoints) p=new THREE.Points(o.geometry,o.material);
+    else if(o.isLine) p=new THREE.Line(o.geometry,o.material);
+    else p=new THREE.Mesh(o.geometry,o.material);
+    p.castShadow=o.castShadow; p.receiveShadow=o.receiveShadow; return p; };
+  const texOf=ms=>{ const out=[]; ms.forEach(m=>{ for(const k in m){ const v=m[k]; if(v && v.isTexture) out.push(v); } }); return out; };
+  const step=()=>{ const t0=performance.now();
+    try{
+      while(jobs.length && performance.now()-t0<10){
+        const o=jobs.shift(), p=proxy(o); tmp.add(p); renderer.compile(tmp,camera); tmp.remove(p);
+        if(renderer.initTexture) texOf(Array.isArray(o.material)?o.material:[o.material]).forEach(t=>{ try{ renderer.initTexture(t); }catch(_){} });
+      }
+    }catch(e){ jobs=[]; }
+    if(jobs.length) return setTimeout(step,0);
+    done();
+  };
+  step();
+}
+function begin(){
   const ld=$('loading'); requestAnimationFrame(()=>{ ld.classList.add('fade'); setTimeout(()=>{ ld.hidden=true; },400); });
   showGrid(false);
   routeHash();
